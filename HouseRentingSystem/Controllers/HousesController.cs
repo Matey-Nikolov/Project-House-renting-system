@@ -6,6 +6,11 @@ namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
+        public IActionResult Details(int id)
+        {
+            return View(new House);
+        }
+
         [Authorize]
         public IActionResult Mine()
         {
