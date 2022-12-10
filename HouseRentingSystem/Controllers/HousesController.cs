@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HouseRentingSystem.Models.Houses;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -10,7 +11,7 @@ namespace HouseRentingSystem.Controllers
         }
         public IActionResult All()
         {
-            return View();
+            return View(new AllHousesQueryModel());
         }
 
 
