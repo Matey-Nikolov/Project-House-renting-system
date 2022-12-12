@@ -1,8 +1,8 @@
 ﻿namespace HouseRentingSystem.Models.Houses
 {
-    public class AllHousesQueryModel
+    public class IndexViewModel
     {
         public IEnumerable<HouseDetailsViewModel> Houses { get; set; }
-                = new List<HouseDetailsViewModel>();
+        = new List<HouseDetailsViewModel>();
     }
 }

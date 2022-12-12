@@ -1,5 +1,16 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@*@model HouseDetailsViewModel*@
+
 @{
+    ViewBag.Title = "House Details";
 }
+
+<h2 class="text-center">@ViewBag.Title</h2>
+<hr />
+
+<div class="card text-center mx-auto" style="width: 25rem;">
+    <img class="card-img-top" src="@Model.ImageUrl" alt="House Image">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Title</h5>
+        <p class="card-text">@Model.Address</p>
+    </div>
+</div>
