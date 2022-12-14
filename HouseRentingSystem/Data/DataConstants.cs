@@ -13,5 +13,10 @@
         {
             public const int NameMaxLength = 50; 
         }
+
+        public class Agent
+        {
+            public const int PhoneNumberMaxLength = 15;
+        }
     }
 }

@@ -5,12 +5,12 @@ namespace HouseRentingSystem.Data.Entities
 {
     public class Category
     {
-        public int Id { get; set; }
+        public int Id { get; init; }
 
         [Required]
         [MaxLength(NameMaxLength)]
         public string Name { get; set; }
 
-        public IEnumerable<House> Houses { get; set; } = new List<House>();
+        public IEnumerable<House> Houses { get; init; } = new List<House>();
     }
 }

@@ -6,7 +6,7 @@ namespace HouseRentingSystem.Data.Entities
 {
     public class House
     {
-        public int Id { get; set; }
+        public int Id { get; init; }
 
         [Required]
         [MaxLength(TitleMaxLength)]
@@ -27,10 +27,10 @@ namespace HouseRentingSystem.Data.Entities
         public decimal PricePerMonth { get; set; }
 
         public int CategoryId { get; set; }
-        //public Category Category { get; set; }
+        public Category Category { get; init; }
 
-        public int AgenId { get; set; }
-        //public Agent Agent { get; set; }
+        public int AgentId { get; set; }
+        public Agent Agent { get; init; }
 
         public string RenterId { get; set; }
     }
