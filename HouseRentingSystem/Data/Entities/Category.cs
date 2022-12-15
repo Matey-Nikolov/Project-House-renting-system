@@ -5,7 +5,7 @@ namespace HouseRentingSystem.Data.Entities
 {
     public class Category
     {
-        //[Key]
+        [Key]
         public int Id { get; init; }
 
         [Required]
