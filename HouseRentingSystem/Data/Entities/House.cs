@@ -6,6 +6,7 @@ namespace HouseRentingSystem.Data.Entities
 {
     public class House
     {
+        //[Key]
         public int Id { get; init; }
 
         [Required]
