@@ -85,7 +85,7 @@ namespace HouseRentingSystem.Data
 
             GuestUser = new IdentityUser()
             {
-                Id = "6d5800ce-d726-4fc8-83d9-d6b3ac1f59le",
+                Id = "6d5800ce-d726-4fc8-83d9-d6b3ac1f591e",
                 UserName = "guest@mail.com",
                 NormalizedUserName = "guest@mail.com",
                 Email = "guest@mail.com",
