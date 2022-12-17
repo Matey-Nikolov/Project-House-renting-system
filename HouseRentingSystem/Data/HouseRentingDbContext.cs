@@ -57,7 +57,7 @@ namespace HouseRentingSystem.Data
 
             SeedCategories();
             builder.Entity<Category>()
-                .HasData(CottageCategory, SingleCategory);
+                .HasData(CottageCategory, SingleCategory, DuplexCategory);
 
             SeedHouses();
             builder.Entity<House>()
