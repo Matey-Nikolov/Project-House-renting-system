@@ -53,14 +53,14 @@ namespace HouseRentingSystem.Data
 
             SeedAgent();
             builder.Entity<Agent>()
-                .HasData(AgentUser);
+                .HasData(Agent);
 
             SeedCategories();
-            builder.Entity<IdentityUser>()
+            builder.Entity<Category>()
                 .HasData(CottageCategory, SingleCategory);
 
             SeedHouses();
-            builder.Entity<IdentityUser>()
+            builder.Entity<House>()
                 .HasData(FirstHouse, SecondHouse, ThirdHouse);
 
 
