@@ -139,7 +139,7 @@ namespace HouseRentingSystem.Data
                 PricePerMonth = 2100.00M,
                 CategoryId = DuplexCategory.Id,
                 AgentId = Agent.Id,
-                RenterId = GuestUser.Id
+                RenterId = this.GuestUser.Id
             };
             
             SecondHouse = new House()
