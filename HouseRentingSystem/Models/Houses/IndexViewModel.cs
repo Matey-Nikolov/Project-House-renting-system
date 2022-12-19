@@ -2,7 +2,9 @@
 {
     public class IndexViewModel
     {
-        public IEnumerable<HouseDetailsViewModel> Houses { get; set; }
-        = new List<HouseDetailsViewModel>();
+        public int TotalHouses { get; init; }
+        public int TotalRents { get; init; }
+        public IEnumerable<HouseIndexViewModel> Houses { get; set; }
+        = new List<HouseIndexViewModel>();
     }
 }
