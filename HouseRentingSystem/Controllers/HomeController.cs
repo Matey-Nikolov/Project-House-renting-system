@@ -1,5 +1,6 @@
 ﻿using HouseRentingSystem.Data;
 using HouseRentingSystem.Models;
+using HouseRentingSystem.Models.Home;
 using HouseRentingSystem.Models.Houses;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -10,16 +11,22 @@ namespace HouseRentingSystem.Controllers
     {
         private readonly HouseRentingDbContext  data;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(HouseRentingDbContext data)
         {
-            data = data;
+            this.data = data;
         }
 
         public IActionResult Index()
         {
             var allHouses = new IndexViewModel()
             {
-                Houses = Common.GetHouses()
+                Houses = data.Houses
+                .Select(h => new HouseIndexViewModel()
+                {
+                    Id = h.Id,
+                    Title = h.Title,
+                    ImageUrl = h.ImageUrl
+                })
             };
 
             return View(allHouses);

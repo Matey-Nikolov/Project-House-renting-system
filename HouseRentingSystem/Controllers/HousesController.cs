@@ -1,4 +1,5 @@
-﻿using HouseRentingSystem.Models.Houses;
+﻿using HouseRentingSystem.Data;
+using HouseRentingSystem.Models.Houses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +8,10 @@ namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
+        private readonly HouseRentingDbContext data;
+        public HousesController(HouseRentingDbContext data)
+             => this.data = data;
+
         [HttpPost]
         [Authorize]
         public IActionResult Leave(int id)
@@ -68,7 +73,13 @@ namespace HouseRentingSystem.Controllers
         {
             var allHouses = new AllHousesQueryModel()
             {
-                Houses = Common.GetHouses()
+                Houses = data.Houses
+                .Select(h => new HouseViewModel()
+                {
+                    Title = h.Title,
+                    Address = h.Address,
+                    ImageUrl = h.ImageUrl
+                })
             };
 
             return View(allHouses);
