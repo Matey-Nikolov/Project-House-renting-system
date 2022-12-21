@@ -2,7 +2,7 @@
 {
     public class AllHousesQueryModel
     {
-        public IEnumerable<HouseDetailsViewModel> Houses { get; set; }
-                = new List<HouseDetailsViewModel>();
+        public IEnumerable<HouseViewModel> Houses { get; set; }
+                = new List<HouseViewModel>();
     }
 }

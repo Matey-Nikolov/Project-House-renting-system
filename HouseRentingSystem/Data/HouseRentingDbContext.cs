@@ -27,9 +27,9 @@ namespace HouseRentingSystem.Data
             Database.Migrate();
         }
 
-        public DbSet<House> Houses { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Agent> Agents { get; set; }
+        public DbSet<House> Houses { get; init; }
+        public DbSet<Category> Categories { get; init; }
+        public DbSet<Agent> Agents { get; init; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
