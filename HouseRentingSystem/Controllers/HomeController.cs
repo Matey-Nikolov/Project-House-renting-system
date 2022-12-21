@@ -1,4 +1,5 @@
-﻿using HouseRentingSystem.Models;
+﻿using HouseRentingSystem.Data;
+using HouseRentingSystem.Models;
 using HouseRentingSystem.Models.Houses;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -7,11 +8,11 @@ namespace HouseRentingSystem.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly HouseRentingDbContext  data;
 
         public HomeController(ILogger<HomeController> logger)
         {
-            _logger = logger;
+            data = data;
         }
 
         public IActionResult Index()
