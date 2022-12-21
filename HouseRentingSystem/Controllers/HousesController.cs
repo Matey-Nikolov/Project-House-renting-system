@@ -3,6 +3,7 @@ using HouseRentingSystem.Models.Houses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -52,15 +53,39 @@ namespace HouseRentingSystem.Controllers
 
         public IActionResult Details(int id)
         {
-            var house = Common.GetHouses().FirstOrDefault();
+            var house = data.Houses.Find(id);
 
-            return View(house);
+            if (house == null)
+            {
+                return BadRequest();
+            }
+
+            var houseModel = new HouseDetailsViewModel()
+            {
+                Title = house.Title,
+                Address = house.Address,
+                ImageUrl = house.ImageUrl
+            };
+
+            return View(houseModel);
         }
 
         [Authorize]
         public IActionResult Mine()
         {
-            return View(new AllHousesQueryModel());
+            var allHouses = new AllHousesQueryModel()
+            {
+                Houses = data.Houses
+                .Where(h => h.Agent.UserId == User.FindFirst(ClaimTypes.NameIdentifier).Value)
+                .Select(h => new HouseViewModel()
+                { 
+                    Title = h.Title,
+                    Address = h.Address,
+                    ImageUrl = h.ImageUrl
+                })
+            };
+
+            return View(allHouses);
         }
 
         //[Authorize]
