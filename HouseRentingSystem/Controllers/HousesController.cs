@@ -28,25 +28,32 @@ namespace HouseRentingSystem.Controllers
            //return RedirectToAction(Mine());
         }
 
+        [Authorize]
+        public IActionResult Edit(int id) => View(new HouseFormModel());
+
         [HttpPost]
         [Authorize]
         public IActionResult Edit(int id, HouseFormModel house)
         {
-            // !!  ! !!  !! ! ! ! ! 
             return RedirectToAction(nameof(Details), new { id = "1" });
         }
+
+        [Authorize]
+        public IActionResult Add() => View();
 
         [HttpPost]
         [Authorize]
         public IActionResult Add(HouseFormModel model)
         {
-            //    !!!!!!!
-            return RedirectToAction(nameof(Details), new {id = "1"});
+            return RedirectToAction(nameof(Details), new { id = "1" });
         }
+
+        [Authorize]
+        public IActionResult Delete(int id) => View(new HouseDetailsViewModel());
 
         [HttpPost]
         [Authorize]
-        public IActionResult Delete(HouseFormModel house)
+        public IActionResult Delete(HouseDetailsViewModel house)
         {
             return RedirectToAction(nameof(All));
         }
@@ -87,12 +94,6 @@ namespace HouseRentingSystem.Controllers
 
             return View(allHouses);
         }
-
-        //[Authorize]
-        //public IActionResult All()
-        //{
-
-        //}
 
         public IActionResult All()
         {

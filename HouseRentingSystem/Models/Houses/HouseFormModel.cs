@@ -8,7 +8,7 @@ namespace HouseRentingSystem.Models.Houses
     {
         public int CategoryId { get; init; }
 
-        public IEnumerable<HouseCategoryViewModel> Categories { get; set }
+        public IEnumerable<HouseCategoryViewModel> Categories { get; set; }
         = new List<HouseCategoryViewModel>();
 
         [Required]
