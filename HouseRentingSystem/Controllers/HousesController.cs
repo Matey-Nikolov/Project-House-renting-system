@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 //using System.Security.Claims;
 using HouseRentingSystem.Infrastructure;
+using HouseRentingSystem.Models.Category;
+using HouseRentingSystem.Data.Entities;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -40,13 +42,60 @@ namespace HouseRentingSystem.Controllers
         }
 
         [Authorize]
-        public IActionResult Add() => View();
+        public IActionResult Add()
+        {
+            if (!data.Agents.Any(a => a.UserId == User.Id()))
+            {
+                return RedirectToAction(nameof(AgentsController.Become), "Agents");
+            }
+
+            return View(new HouseFormModel
+            {
+                Categories = GetHouseCategories()
+            });
+        }
 
         [HttpPost]
         [Authorize]
         public IActionResult Add(HouseFormModel model)
         {
-            return RedirectToAction(nameof(Details), new { id = "1" });
+            if (!data.Agents.Any(a => a.UserId == User.Id()))
+            {
+                return RedirectToAction(nameof(AgentsController.Become), "Agents");
+            }
+
+            if (!data.Categories.Any(c => c.Id == model.CategoryId))
+            {
+                ModelState.AddModelError(nameof(model.CategoryId),
+                    "Category does not exist.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Categories = GetHouseCategories();
+
+                return View(model);
+            }
+
+            var agentId = data.Agents
+                .FirstOrDefault(a => a.UserId == User.Id())
+                .Id;
+
+            House house = new House
+            {
+                Title = model.Title,
+                Address= model.Address,
+                Description = model.Description,
+                ImageUrl = model.ImageUrl,
+                PricePerMonth = model.PricePerMonth,
+                CategoryId = model.CategoryId,
+                AgentId = agentId
+            };
+
+            data.Houses.Add(house);
+            data.SaveChanges();
+
+            return RedirectToAction(nameof(Details), new { id = house.Id });
         }
 
         [Authorize]
@@ -111,5 +160,17 @@ namespace HouseRentingSystem.Controllers
 
             return View(allHouses);
         }
+
+        private IEnumerable<HouseCategoryViewModel> GetHouseCategories()
+        {
+            return data.Categories
+                .Select(c => new HouseCategoryViewModel
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                })
+                .ToList();
+        }
+
     }
 }

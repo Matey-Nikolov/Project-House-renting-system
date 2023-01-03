@@ -36,12 +36,24 @@ namespace HouseRentingSystem.Controllers
                 return BadRequest();
             }
 
+            if (data.Agents.Any(a => a.PhoneNumber == model.PhoneNumber))
+            {
+                ModelState.AddModelError(nameof(model.PhoneNumber),
+                    "Phone number already exists. Enter another one.");
+            }
+
+            if (data.Houses.Any(h => h.RenterId == User.Id()))
+            {
+                ModelState.AddModelError("Error",
+                    "Ypu should have no rents to become an agent!");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            Agent agent = new Agent()
+            var agent = new Agent()
             {
                 UserId = User.Id(),
                 PhoneNumber = model.PhoneNumber
