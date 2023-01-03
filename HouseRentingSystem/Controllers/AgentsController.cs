@@ -1,4 +1,5 @@
 ﻿using HouseRentingSystem.Data;
+using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Infrastructure;
 using HouseRentingSystem.Models.Agents;
 using Microsoft.AspNetCore.Authorization;
@@ -28,8 +29,27 @@ namespace HouseRentingSystem.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Become(BecomeAgentFormModel agent)
+        public IActionResult Become(BecomeAgentFormModel model)
         {
+            if (data.Agents.Any(a => a.UserId == User.Id()))
+            {
+                return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            Agent agent = new Agent()
+            {
+                UserId = User.Id(),
+                PhoneNumber = model.PhoneNumber
+            };
+
+            data.Agents.Add(agent);
+            data.SaveChanges();
+
             return RedirectToAction(nameof(HousesController.All), "Houses");
         }
         
