@@ -3,7 +3,8 @@ using HouseRentingSystem.Models.Houses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
+//using System.Security.Claims;
+using HouseRentingSystem.Infrastructure;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -83,7 +84,7 @@ namespace HouseRentingSystem.Controllers
             var allHouses = new AllHousesQueryModel()
             {
                 Houses = data.Houses
-                .Where(h => h.Agent.UserId == User.FindFirst(ClaimTypes.NameIdentifier).Value)
+                .Where(h => h.Agent.UserId == User.Id())
                 .Select(h => new HouseViewModel()
                 { 
                     Title = h.Title,

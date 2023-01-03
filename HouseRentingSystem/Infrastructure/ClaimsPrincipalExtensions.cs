@@ -2,9 +2,9 @@
 
 namespace HouseRentingSystem.Infrastructure
 {
-    public class ClaimsPrincipalExtensions
+    public static class ClaimsPrincipalExtensions
     {
-        public static string Id(ClaimsPrincipal user)
+        public static string Id(this ClaimsPrincipal user)
         {
             return user.FindFirst(ClaimTypes.NameIdentifier).Value;
         }

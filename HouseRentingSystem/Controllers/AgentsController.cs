@@ -7,6 +7,13 @@ namespace HouseRentingSystem.Controllers
 {
     public class AgentsController : Controller
     {
+        private readonly HouseRentingDbContext data;
+
+        public AgentsController(HouseRentingDbContext data)
+        {
+            this.data = data;
+        }
+
         [Authorize]
         public IActionResult Become() => View();
 
@@ -16,5 +23,6 @@ namespace HouseRentingSystem.Controllers
         {
             return RedirectToAction(nameof(HousesController.All), "Houses");
         }
+        
     }
 }
