@@ -32,12 +32,76 @@ namespace HouseRentingSystem.Controllers
         }
 
         [Authorize]
-        public IActionResult Edit(int id) => View(new HouseFormModel());
+        public IActionResult Edit(int id)
+        {
+            var house = data.Houses.Find(id);
+
+            if (house == null)
+            {
+                return BadRequest();
+            }
+
+            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
+
+            if (agent == null || agent.UserId != User.Id())
+            {
+                return Unauthorized();
+            }
+
+            HouseFormModel houseModel = new HouseFormModel()
+            {
+                Title = house.Title,
+                Address = house.Address,
+                Description = house.Description,
+                ImageUrl = house.ImageUrl,
+                PricePerMonth = house.PricePerMonth,
+                CategoryId = house.CategoryId,
+                Categories = GetHouseCategories()
+            };
+
+            return View();
+        }
 
         [HttpPost]
         [Authorize]
-        public IActionResult Edit(int id, HouseFormModel house)
+        public IActionResult Edit(int id, HouseFormModel model)
         {
+            var house = data.Houses.Find(id);
+
+            if (house == null)
+            {
+                return View();
+            }
+
+            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
+
+            if (agent == null || agent.UserId != User.Id())
+            {
+                return Unauthorized();
+            }
+
+            if (!data.Categories.Any(c => c.Id == model.CategoryId))
+            {
+                ModelState.AddModelError(nameof(model.CategoryId),
+                    "Category does not exist.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                model.Categories = GetHouseCategories();
+
+                return View(model);
+            }
+
+            house.Title = model.Title; 
+            house.Address = model.Address;
+            house.Description = model.Description;
+            house.ImageUrl = model.ImageUrl;
+            house.PricePerMonth= model.PricePerMonth;
+            house.CategoryId = model.CategoryId;
+
+            data.SaveChanges();
+
             return RedirectToAction(nameof(Details), new { id = "1" });
         }
 
