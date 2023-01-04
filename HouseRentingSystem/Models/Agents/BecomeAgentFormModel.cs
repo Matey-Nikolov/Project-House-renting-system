@@ -7,7 +7,7 @@ namespace HouseRentingSystem.Models.Agents
     {
         [Required]
         [Phone]
-        [Display(Name ="Phone number")]
+        [Display(Name ="Phone Number")]
         [StringLength(PhoneNumberMaxLength, MinimumLength = PhoneNumberMinLength)]
         public string PhoneNumber { get; init; }
     }
