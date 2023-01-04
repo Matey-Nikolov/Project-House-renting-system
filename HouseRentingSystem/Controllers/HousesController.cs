@@ -20,6 +20,22 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Leave(int id)
         {
+            if (!data.Houses.Any(h => h.Id == id && h.RenterId != null))
+            {
+                return BadRequest();
+            }
+
+            var house = data.Houses.Find(id);
+
+            if (house.RenterId != User.Id())
+            {
+                return Unauthorized();
+            }
+
+            house.RenterId = null;
+
+            data.SaveChanges();
+
             return RedirectToAction(nameof(Mine));
         }
 
@@ -27,8 +43,28 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Rent(int id)
         {
+            if (!data.Houses.Any(h => h.Id == id))
+            {
+                return BadRequest();
+            }
+
+            if (data.Agents.Any(a => a.UserId == User.Id()))
+            {
+                return Unauthorized();
+            }
+
+            var house = data.Houses.Find(id);
+
+            if (house.RenterId != null)
+            {
+                return BadRequest();
+            }
+
+            house.RenterId = User.Id();
+
+            data.SaveChanges();
+
             return RedirectToAction(nameof(Mine));
-           //return RedirectToAction(Mine());
         }
 
         [Authorize]
@@ -59,7 +95,7 @@ namespace HouseRentingSystem.Controllers
                 Categories = GetHouseCategories()
             };
 
-            return View();
+            return View(houseModel);
         }
 
         [HttpPost]
@@ -86,7 +122,7 @@ namespace HouseRentingSystem.Controllers
                     "Category does not exist.");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 model.Categories = GetHouseCategories();
 
@@ -163,12 +199,53 @@ namespace HouseRentingSystem.Controllers
         }
 
         [Authorize]
-        public IActionResult Delete(int id) => View(new HouseDetailsViewModel());
+        public IActionResult Delete(int id)
+        {
+            var house = data.Houses.Find(id);
+
+            if (house == null)
+            {
+                return BadRequest();
+            }
+
+            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
+
+            if (agent == null || agent.UserId != User.Id())
+            {
+                return Unauthorized();
+            }
+
+            HouseViewModel model = new HouseViewModel()
+            {
+                Title = house.Title,
+                Address = house.Address,
+                ImageUrl = house.ImageUrl
+            };
+
+            return View(model);
+        }
 
         [HttpPost]
         [Authorize]
-        public IActionResult Delete(HouseDetailsViewModel house)
+        public IActionResult Delete(HouseViewModel model)
         {
+            var house = data.Houses.Find(model.Id);
+
+            if (house == null) 
+            {
+                return BadRequest();
+            }
+
+            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
+
+            if (agent == null || agent.UserId != User.Id())
+            {
+                return Unauthorized();
+            }
+
+            data.Houses.Remove(house);
+            data.SaveChanges();
+
             return RedirectToAction(nameof(All));
         }
 
