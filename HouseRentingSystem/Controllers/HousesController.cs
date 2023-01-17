@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using HouseRentingSystem.Infrastructure;
 using HouseRentingSystem.Models.Category;
 using HouseRentingSystem.Data.Entities;
+using HouseRentingSystem.Models;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -129,11 +130,11 @@ namespace HouseRentingSystem.Controllers
                 return View(model);
             }
 
-            house.Title = model.Title; 
+            house.Title = model.Title;
             house.Address = model.Address;
             house.Description = model.Description;
             house.ImageUrl = model.ImageUrl;
-            house.PricePerMonth= model.PricePerMonth;
+            house.PricePerMonth = model.PricePerMonth;
             house.CategoryId = model.CategoryId;
 
             data.SaveChanges();
@@ -184,7 +185,7 @@ namespace HouseRentingSystem.Controllers
             House house = new House
             {
                 Title = model.Title,
-                Address= model.Address,
+                Address = model.Address,
                 Description = model.Description,
                 ImageUrl = model.ImageUrl,
                 PricePerMonth = model.PricePerMonth,
@@ -231,7 +232,7 @@ namespace HouseRentingSystem.Controllers
         {
             var house = data.Houses.Find(model.Id);
 
-            if (house == null) 
+            if (house == null)
             {
                 return BadRequest();
             }
@@ -276,7 +277,7 @@ namespace HouseRentingSystem.Controllers
                 Houses = data.Houses
                 .Where(h => h.Agent.UserId == User.Id())
                 .Select(h => new HouseViewModel()
-                { 
+                {
                     Title = h.Title,
                     Address = h.Address,
                     ImageUrl = h.ImageUrl
@@ -286,8 +287,49 @@ namespace HouseRentingSystem.Controllers
             return View(allHouses);
         }
 
-        public IActionResult All()
+        public IActionResult All([FromQuery] AllHousesQueryModel query)
         {
+            var housesQuery = data.Houses.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.Category))
+            {
+                housesQuery = data.Houses
+                    .Where(h => h.Category.Name == query.Category);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.SearchTerm))
+            {
+                housesQuery = housesQuery.Where(h =>
+                h.Title.ToLower().Contains(query.SearchTerm.ToLower()) ||
+                h.Address.ToLower().Contains(query.SearchTerm.ToLower()) ||
+                h.Description.ToLower().Contains(query.SearchTerm.ToLower()));
+
+            }
+
+            housesQuery = query.Sorting switch
+            {
+                HouseSorting.Price => housesQuery
+                .OrderBy(h => h.PricePerMonth),
+                HouseSorting.NotRentedFirst => housesQuery
+                .OrderBy(h => h.RenterId != null)
+                .ThenByDescending(h => h.Id),
+                _ => housesQuery.OrderByDescending(h => h.Id)
+            };
+
+            var houses = housesQuery
+                .Skip((query.CurrentPage - 1) * AllHousesQueryModel.HousesPerPage)
+                .Take(AllHousesQueryModel.HousesPerPage)
+                .Select(h => new HouseViewModel
+                {
+                    Id = h.Id,
+                    Title = h.Title,
+                    Address = h.Address,
+                    ImageUrl = h.ImageUrl,
+                    IsRented = h.RenterId, // != null
+                    PricePerMonth = h.PricePerMonth
+                })
+                .ToList();
+
             var allHouses = new AllHousesQueryModel()
             {
                 Houses = data.Houses

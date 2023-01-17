@@ -14,7 +14,7 @@ namespace HouseRentingSystem.Models.Houses
         public string ImageUrl { get; init; }
 
         [DisplayName("Price Per Month")]
-        public string PricePerMonth { get; init; }
+        public decimal PricePerMonth { get; init; }
 
         [DisplayName("Is Rented")]
         public string IsRented { get; init; }
