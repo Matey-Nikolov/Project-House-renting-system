@@ -326,22 +326,22 @@ namespace HouseRentingSystem.Controllers
                     Address = h.Address,
                     ImageUrl = h.ImageUrl,
                     IsRented = h.RenterId, // != null
-                    PricePerMonth = h.PricePerMonth
+                    PricePerMonth = h.PricePerMonth,
                 })
                 .ToList();
 
-            var allHouses = new AllHousesQueryModel()
-            {
-                Houses = data.Houses
-                .Select(h => new HouseViewModel()
-                {
-                    Title = h.Title,
-                    Address = h.Address,
-                    ImageUrl = h.ImageUrl
-                })
-            };
+            var housesCategories = data.Categories
+                .Select(c => c.Name)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
 
-            return View(allHouses);
+            query.Categories = housesCategories;
+
+            var totalHouses = housesQuery.Count();
+            query.TotalHousesCount = totalHouses;
+
+            return View(query);
         }
 
         private IEnumerable<HouseCategoryViewModel> GetHouseCategories()
