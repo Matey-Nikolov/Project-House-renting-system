@@ -71,6 +71,10 @@
     </div>
 </div>
 
+@{
+    var shouldButtonBeDisabled = Model.CurrentPage == maxPage || !Model.Houses.Any();
+}
+
 
 @*<div class="text-center row">
     @foreach (var house in Model.Houses)

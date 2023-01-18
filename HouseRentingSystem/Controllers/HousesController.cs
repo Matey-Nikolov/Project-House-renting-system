@@ -325,7 +325,7 @@ namespace HouseRentingSystem.Controllers
                     Title = h.Title,
                     Address = h.Address,
                     ImageUrl = h.ImageUrl,
-                    IsRented = h.RenterId, // != null
+                    IsRented = h.RenterId != null,
                     PricePerMonth = h.PricePerMonth,
                 })
                 .ToList();
