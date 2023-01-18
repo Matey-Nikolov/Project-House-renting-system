@@ -75,16 +75,31 @@
     var shouldButtonBeDisabled = Model.CurrentPage == maxPage || !Model.Houses.Any();
 }
 
+<div class="row mb-5">
+    <div class="col-md-6">
+        <a class="btn btn-primary"
+           @(Model.CurrentPage == 1 ? "disabled" : string.Empty)"
+           asp-controller="Houses"
+           asp-action="All"
+           asp-route-currentPage="@(Model.CurrentPage + 1)"
+           asp-route-category="@Model.Category"
+           asp-route-searchTerm="@Model.SearchTerm"
+           asp-route--sorting="@((int)Model.Sorting)"><<</a>
+    </div>
 
-@*<div class="text-center row">
-    @foreach (var house in Model.Houses)
+    <div class="col-md-6">
+        <a class="btn btn-primary float-sm-right">>></a>
+    </div>
+</div>
+
+@if(!Model.Houses.Any())
+{
+    <h2 class="text-center">No houses found by the given criteria!</h2>
+}
+
+<div class="row">
+    @foreach(var house in Model.Houses)
     {
-        <div class="card col-4" style="width: 20rem;">
-            <img class="card-img-top" src="@house.ImageUrl" alt="House Image">
-            <div class="card-body">
-                <h5 class="card-title">@house.Title</h5>
-                <p class="card-text">@house.Address</p>
-            </div>
-        </div>
+        <partial name="_HousePartial" model="@house" />
     }
-</div>*@
+</div>
