@@ -160,12 +160,12 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Add(HouseFormModel model)
         {
-            if (!data.Agents.Any(a => a.UserId == User.Id()))
+            if (!this.data.Agents.Any(a => a.UserId == this.User.Id()))
             {
                 return RedirectToAction(nameof(AgentsController.Become), "Agents");
             }
 
-            if (!data.Categories.Any(c => c.Id == model.CategoryId))
+            if (!this.data.Categories.Any(c => c.Id == model.CategoryId))
             {
                 ModelState.AddModelError(nameof(model.CategoryId),
                     "Category does not exist.");
@@ -173,15 +173,16 @@ namespace HouseRentingSystem.Controllers
 
             if (!ModelState.IsValid)
             {
-                model.Categories = GetHouseCategories();
+                model.Categories = this.GetHouseCategories();
 
                 return View(model);
             }
 
-            var agentId = data.Agents
-                .FirstOrDefault(a => a.UserId == User.Id()).Id;
+            var agentId = this.data.Agents
+                .FirstOrDefault(a => a.UserId == this.User.Id())
+                .Id;
 
-            House house = new House
+            var house = new House
             {
                 Title = model.Title,
                 Address = model.Address,
@@ -192,8 +193,8 @@ namespace HouseRentingSystem.Controllers
                 AgentId = agentId
             };
 
-            data.Houses.Add(house);
-            data.SaveChanges();
+            this.data.Houses.Add(house);
+            this.data.SaveChanges();
 
             return RedirectToAction(nameof(Details), new { id = house.Id });
         }
@@ -271,19 +272,45 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Mine()
         {
-            var allHouses = new AllHousesQueryModel()
-            {
-                Houses = data.Houses
-                .Where(h => h.Agent.UserId == User.Id())
-                .Select(h => new HouseViewModel()
-                {
-                    Title = h.Title,
-                    Address = h.Address,
-                    ImageUrl = h.ImageUrl
-                })
-            };
+            List<HouseViewModel> myHouses = null;
 
-            return View(allHouses);
+            var isAgent = data.Agents.Any(a => a.UserId == User.Id());
+
+            if (isAgent)
+            {
+                var currentAgentId = data.Agents
+                    .FirstOrDefault(a => a.UserId == User.Id()).Id;
+
+                myHouses = data.Houses
+                    .Where(h => h.AgentId == currentAgentId)
+                    .Select(h => new HouseViewModel()
+                    {
+                        Id = h.Id,
+                        Title = h.Title,
+                        Address = h.Address,
+                        ImageUrl = h.ImageUrl,
+                        PricePerMonth = h.PricePerMonth,
+                        IsRented = h.RenterId != null 
+                    })
+                    .ToList();
+            }
+            else
+            {
+                myHouses = data.Houses
+                    .Where(h => h.RenterId == User.Id())
+                    .Select(h => new HouseViewModel()
+                    {
+                        Id = h.Id,
+                        Title = h.Title,
+                        Address = h.Address,
+                        ImageUrl = h.ImageUrl,
+                        PricePerMonth = h.PricePerMonth,
+                        IsRented = h.RenterId != null
+                    })
+                    .ToList();
+            }
+
+            return View(myHouses);
         }
 
         public IActionResult All([FromQuery] AllHousesQueryModel query)
