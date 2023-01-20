@@ -8,6 +8,7 @@ using HouseRentingSystem.Infrastructure;
 using HouseRentingSystem.Models.Category;
 using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Models;
+using HouseRentingSystem.Models.Agents;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -252,19 +253,30 @@ namespace HouseRentingSystem.Controllers
 
         public IActionResult Details(int id)
         {
-            var house = data.Houses.Find(id);
-
-            if (house == null)
+            if (!data.Houses.Any(h => h.Id == id))
             {
                 return BadRequest();
             }
 
-            var houseModel = new HouseDetailsViewModel()
-            {
-                Title = house.Title,
-                Address = house.Address,
-                ImageUrl = house.ImageUrl
-            };
+            var houseModel = data.Houses
+                .Where(h => h.Id == id)
+                .Select(h => new HouseDetailsViewModel()
+                {
+                    Id = h.Id,
+                    Title = h.Title,
+                    Address = h.Address,
+                    Description = h.Description,
+                    ImageUrl = h.ImageUrl,
+                    PricePerMonth = h.PricePerMonth,
+                    IsRented = h.RenterId != null,
+                    Category = h.Category.Name,
+                    Agent = new AgentViewModel()
+                    {
+                        PhoneNumber = h.Agent.PhoneNumber,
+                        Email = h.Agent.User.Email
+                    }
+                })
+                .FirstOrDefault();
 
             return View(houseModel);
         }
@@ -326,19 +338,18 @@ namespace HouseRentingSystem.Controllers
             if (!string.IsNullOrWhiteSpace(query.SearchTerm))
             {
                 housesQuery = housesQuery.Where(h =>
-                h.Title.ToLower().Contains(query.SearchTerm.ToLower()) ||
-                h.Address.ToLower().Contains(query.SearchTerm.ToLower()) ||
-                h.Description.ToLower().Contains(query.SearchTerm.ToLower()));
-
+                    h.Title.ToLower().Contains(query.SearchTerm.ToLower()) ||
+                    h.Address.ToLower().Contains(query.SearchTerm.ToLower()) ||
+                    h.Description.ToLower().Contains(query.SearchTerm.ToLower()));
             }
 
             housesQuery = query.Sorting switch
             {
                 HouseSorting.Price => housesQuery
-                .OrderBy(h => h.PricePerMonth),
+                    .OrderBy(h => h.PricePerMonth),
                 HouseSorting.NotRentedFirst => housesQuery
-                .OrderBy(h => h.RenterId != null)
-                .ThenByDescending(h => h.Id),
+                    .OrderBy(h => h.RenterId != null)
+                    .ThenByDescending(h => h.Id),
                 _ => housesQuery.OrderByDescending(h => h.Id)
             };
 
@@ -352,11 +363,14 @@ namespace HouseRentingSystem.Controllers
                     Address = h.Address,
                     ImageUrl = h.ImageUrl,
                     IsRented = h.RenterId != null,
-                    PricePerMonth = h.PricePerMonth,
+                    PricePerMonth = h.PricePerMonth
                 })
                 .ToList();
 
-            var housesCategories = data.Categories
+            query.Houses = houses;
+
+            var houseCategories = data
+                .Categories
                 .Select(c => c.Name)
                 .Distinct()
                 .OrderBy(c => c)

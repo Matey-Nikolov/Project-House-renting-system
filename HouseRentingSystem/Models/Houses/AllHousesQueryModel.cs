@@ -9,9 +9,8 @@ namespace HouseRentingSystem.Models.Houses
         public string Category { get; init; }
 
         [Display(Name = "Search by text")]
-        
         public string SearchTerm { get; init; }
-        
+
         public HouseSorting Sorting { get; init; }
 
         public int CurrentPage { get; init; } = 1;
@@ -20,7 +19,7 @@ namespace HouseRentingSystem.Models.Houses
 
         public IEnumerable<string> Categories { get; set; }
 
-        public IEnumerable<HouseViewModel> Houses { get; set; }
+        public IEnumerable<HouseViewModel> Houses { get; set; } 
             = new List<HouseViewModel>();
     }
 }
