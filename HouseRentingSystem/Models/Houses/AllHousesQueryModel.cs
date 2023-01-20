@@ -12,7 +12,7 @@ namespace HouseRentingSystem.Models.Houses
         
         public string SearchTerm { get; init; }
         
-        public HouseSorting Sorting  { get; set; }
+        public HouseSorting Sorting { get; init; }
 
         public int CurrentPage { get; init; } = 1;
 

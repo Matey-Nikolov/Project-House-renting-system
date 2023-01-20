@@ -362,7 +362,7 @@ namespace HouseRentingSystem.Controllers
                 .OrderBy(c => c)
                 .ToList();
 
-            query.Categories = housesCategories;
+            query.Categories = houseCategories;
 
             var totalHouses = housesQuery.Count();
             query.TotalHousesCount = totalHouses;
