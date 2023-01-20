@@ -179,8 +179,7 @@ namespace HouseRentingSystem.Controllers
             }
 
             var agentId = data.Agents
-                .FirstOrDefault(a => a.UserId == User.Id())
-                .Id;
+                .FirstOrDefault(a => a.UserId == User.Id()).Id;
 
             House house = new House
             {
