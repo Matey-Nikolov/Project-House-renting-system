@@ -2,6 +2,7 @@
 using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Infrastructure;
 using HouseRentingSystem.Models.Agents;
+using HouseRentingSystem.Services.Agents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,17 +10,17 @@ namespace HouseRentingSystem.Controllers
 {
     public class AgentsController : Controller
     {
-        private readonly HouseRentingDbContext data;
+        private readonly IAgentService agents;
 
-        public AgentsController(HouseRentingDbContext data)
+        public AgentsController(IAgentService agents)
         {
-            this.data = data;
+            this.agents = agents;
         }
 
         [Authorize]
         public IActionResult Become()
         {
-            if (data.Agents.Any(a => a.UserId == User.Id()))
+            if (agents.ExistsById(User.Id()))
             {
                 return BadRequest();
             }
@@ -31,18 +32,20 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Become(BecomeAgentFormModel model)
         {
-            if (data.Agents.Any(a => a.UserId == User.Id()))
+            string userId = User.Id();
+
+            if (agents.ExistsById(userId))
             {
                 return BadRequest();
             }
 
-            if (data.Agents.Any(a => a.PhoneNumber == model.PhoneNumber))
+            if (agents.UserWithPhoneNumberExists(model.PhoneNumber))
             {
                 ModelState.AddModelError(nameof(model.PhoneNumber),
                     "Phone number already exists. Enter another one.");
             }
 
-            if (data.Houses.Any(h => h.RenterId == User.Id()))
+            if (agents.UserHasRents(userId))
             {
                 ModelState.AddModelError("Error",
                     "Ypu should have no rents to become an agent!");
@@ -53,14 +56,7 @@ namespace HouseRentingSystem.Controllers
                 return View(model);
             }
 
-            var agent = new Agent()
-            {
-                UserId = User.Id(),
-                PhoneNumber = model.PhoneNumber
-            };
-
-            data.Agents.Add(agent);
-            data.SaveChanges();
+            agents.Create(userId, model.PhoneNumber);
 
             return RedirectToAction(nameof(HousesController.All), "Houses");
         }

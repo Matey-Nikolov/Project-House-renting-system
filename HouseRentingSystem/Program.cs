@@ -1,4 +1,5 @@
 using HouseRentingSystem.Data;
+using HouseRentingSystem.Services.Agents;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +26,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 .AddEntityFrameworkStores<HouseRentingDbContext>();
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddTransient<IAgentService, AgentService>();
 
 var app = builder.Build();
 
