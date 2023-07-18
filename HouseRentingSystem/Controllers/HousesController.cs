@@ -9,14 +9,22 @@ using HouseRentingSystem.Models.Category;
 using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Models;
 using HouseRentingSystem.Models.Agents;
+using HouseRentingSystem.Services.Houses;
 
 namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
         private readonly HouseRentingDbContext data;
-        public HousesController(HouseRentingDbContext data)
-             => this.data = data;
+        private readonly IHouseService houses;
+
+
+        public HousesController(HouseRentingDbContext data, IHouseService houses)
+        {
+            this.data = data;
+            this.houses = houses;
+        }
+
 
         [HttpPost]
         [Authorize]
@@ -327,59 +335,20 @@ namespace HouseRentingSystem.Controllers
 
         public IActionResult All([FromQuery] AllHousesQueryModel query)
         {
-            var housesQuery = data.Houses.AsQueryable();
+            var queryResult = houses.All
+                (
+                    query.Category,
+                    query.SearchTerm,
+                    query.Sorting,
+                    query.CurrentPage,
+                    AllHousesQueryModel.HousesPerPage
+                );
 
-            if (!string.IsNullOrWhiteSpace(query.Category))
-            {
-                housesQuery = data.Houses
-                    .Where(h => h.Category.Name == query.Category);
-            }
+            query.TotalHousesCount = queryResult.TotalHousesCount;
+            query.Houses = queryResult.Houses;
 
-            if (!string.IsNullOrWhiteSpace(query.SearchTerm))
-            {
-                housesQuery = housesQuery.Where(h =>
-                    h.Title.ToLower().Contains(query.SearchTerm.ToLower()) ||
-                    h.Address.ToLower().Contains(query.SearchTerm.ToLower()) ||
-                    h.Description.ToLower().Contains(query.SearchTerm.ToLower()));
-            }
-
-            housesQuery = query.Sorting switch
-            {
-                HouseSorting.Price => housesQuery
-                    .OrderBy(h => h.PricePerMonth),
-                HouseSorting.NotRentedFirst => housesQuery
-                    .OrderBy(h => h.RenterId != null)
-                    .ThenByDescending(h => h.Id),
-                _ => housesQuery.OrderByDescending(h => h.Id)
-            };
-
-            var houses = housesQuery
-                .Skip((query.CurrentPage - 1) * AllHousesQueryModel.HousesPerPage)
-                .Take(AllHousesQueryModel.HousesPerPage)
-                .Select(h => new HouseViewModel
-                {
-                    Id = h.Id,
-                    Title = h.Title,
-                    Address = h.Address,
-                    ImageUrl = h.ImageUrl,
-                    IsRented = h.RenterId != null,
-                    PricePerMonth = h.PricePerMonth
-                })
-                .ToList();
-
-            query.Houses = houses;
-
-            var houseCategories = data
-                .Categories
-                .Select(c => c.Name)
-                .Distinct()
-                .OrderBy(c => c)
-                .ToList();
-
+            var houseCategories = houses.AllCategoriesNames();
             query.Categories = houseCategories;
-
-            var totalHouses = housesQuery.Count();
-            query.TotalHousesCount = totalHouses;
 
             return View(query);
         }
