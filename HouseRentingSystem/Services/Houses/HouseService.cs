@@ -1,6 +1,8 @@
 ﻿using HouseRentingSystem.Data;
+using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Models;
 using HouseRentingSystem.Services.Houses.Models;
+using Microsoft.Build.Evaluation;
 
 namespace HouseRentingSystem.Services.Houses
 {
@@ -76,5 +78,43 @@ namespace HouseRentingSystem.Services.Houses
             .Select(c => c.Name)
             .Distinct()
             .ToList();
+
+        public IEnumerable<HouseServiceModel> AllHousesByAgentId (int agentId)
+        {
+            List<House> houses = data
+                .Houses
+                .Where(h => h.AgentId == agentId)
+                .ToList();
+
+            return ProjectToModel(houses);
+        }
+
+        public IEnumerable<HouseServiceModel> AllHousesByUserId(string userId)
+        {
+            List<House> houses = data
+                .Houses
+                .Where(h => h.RenterId == userId)
+                .ToList();
+
+            return ProjectToModel(houses);
+        }
+
+
+        private List<HouseServiceModel> ProjectToModel(List<House> houses)
+        {
+            List<HouseServiceModel> resultHouses = houses
+                .Select(h => new HouseServiceModel()
+                {
+                    Id = h.Id,
+                    Title = h.Title,
+                    Address = h.Address,
+                    ImageUrl = h.ImageUrl,
+                    PricePerMonth = h.PricePerMonth,
+                    IsRented = h.RenterId == null
+                })
+                .ToList();
+
+            return resultHouses;
+        }
     }
 }

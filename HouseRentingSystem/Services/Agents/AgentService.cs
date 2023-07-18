@@ -10,6 +10,11 @@ namespace HouseRentingSystem.Services.Agents
         public AgentService(HouseRentingDbContext data)
             => this.data = data;
 
+        public int GetAgentId(string userId)
+            => data.Agents
+            .FirstOrDefault(a => a.UserId == userId)
+            .Id;
+
         public bool ExistsById(string userId)
             => data.Agents.Any(a => a.UserId == userId);
 

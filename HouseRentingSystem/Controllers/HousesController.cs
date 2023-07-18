@@ -10,19 +10,23 @@ using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Models;
 using HouseRentingSystem.Models.Agents;
 using HouseRentingSystem.Services.Houses;
+using HouseRentingSystem.Services.Agents;
+using HouseRentingSystem.Services.Houses.Models;
 
 namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
         private readonly HouseRentingDbContext data;
+        
         private readonly IHouseService houses;
+        private readonly IAgentService agents;
 
-
-        public HousesController(HouseRentingDbContext data, IHouseService houses)
+        public HousesController(HouseRentingDbContext data, IHouseService houses, IAgentService agents)
         {
             this.data = data;
             this.houses = houses;
+            this.agents = agents;
         }
 
 
@@ -292,42 +296,18 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Mine()
         {
-            List<HouseViewModel> myHouses = null;
+            IEnumerable<HouseServiceModel> myHouses = null;
 
-            var isAgent = data.Agents.Any(a => a.UserId == User.Id());
+            string userId = User.Id();
 
-            if (isAgent)
+            if (agents.ExistsById(userId))
             {
-                var currentAgentId = data.Agents
-                    .FirstOrDefault(a => a.UserId == User.Id()).Id;
-
-                myHouses = data.Houses
-                    .Where(h => h.AgentId == currentAgentId)
-                    .Select(h => new HouseViewModel()
-                    {
-                        Id = h.Id,
-                        Title = h.Title,
-                        Address = h.Address,
-                        ImageUrl = h.ImageUrl,
-                        PricePerMonth = h.PricePerMonth,
-                        IsRented = h.RenterId != null 
-                    })
-                    .ToList();
+                int currentAgentId = agents.GetAgentId(userId);
+                myHouses = houses.AllHousesByAgentId(currentAgentId);
             }
             else
             {
-                myHouses = data.Houses
-                    .Where(h => h.RenterId == User.Id())
-                    .Select(h => new HouseViewModel()
-                    {
-                        Id = h.Id,
-                        Title = h.Title,
-                        Address = h.Address,
-                        ImageUrl = h.ImageUrl,
-                        PricePerMonth = h.PricePerMonth,
-                        IsRented = h.RenterId != null
-                    })
-                    .ToList();
+                myHouses = houses.AllHousesByUserId(userId);
             }
 
             return View(myHouses);

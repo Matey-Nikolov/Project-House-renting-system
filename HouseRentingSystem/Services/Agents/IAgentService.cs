@@ -2,6 +2,8 @@
 {
     public interface IAgentService
     {
+        int GetAgentId(string userId);
+
         bool ExistsById(string userId);
 
         bool UserWithPhoneNumberExists(string phoneNumber);
