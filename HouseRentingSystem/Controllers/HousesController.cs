@@ -250,30 +250,12 @@ namespace HouseRentingSystem.Controllers
 
         public IActionResult Details(int id)
         {
-            if (!data.Houses.Any(h => h.Id == id))
+            if (!houses.Exists(id))
             {
                 return BadRequest();
             }
 
-            var houseModel = data.Houses
-                .Where(h => h.Id == id)
-                .Select(h => new HouseDetailsViewModel()
-                {
-                    Id = h.Id,
-                    Title = h.Title,
-                    Address = h.Address,
-                    Description = h.Description,
-                    ImageUrl = h.ImageUrl,
-                    PricePerMonth = h.PricePerMonth,
-                    IsRented = h.RenterId != null,
-                    Category = h.Category.Name,
-                    Agent = new AgentViewModel()
-                    {
-                        PhoneNumber = h.Agent.PhoneNumber,
-                        Email = h.Agent.User.Email
-                    }
-                })
-                .FirstOrDefault();
+            HouseDetailsServiceModel houseModel = houses.HouseDetailsById(id);
 
             return View(houseModel);
         }

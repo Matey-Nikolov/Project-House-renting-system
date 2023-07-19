@@ -1,5 +1,6 @@
 ﻿using HouseRentingSystem.Models;
 using HouseRentingSystem.Services.Houses.Models;
+using System.Security.Cryptography.Xml;
 
 namespace HouseRentingSystem.Services.Houses
 {
@@ -14,10 +15,14 @@ namespace HouseRentingSystem.Services.Houses
                 int housesPerPage = 1
             );
 
+        bool Exists(int id);
         bool CategoryExists(int categoryId);
+
         int Create(string title, string address,
             string description, string imageUrl,
             decimal price, int categoryId, int agentId);
+
+        HouseDetailsServiceModel HouseDetailsById(int id);
 
         IEnumerable<string> AllCategoriesNames();
         IEnumerable<HouseCategoryServiceModel> AllCategories();
