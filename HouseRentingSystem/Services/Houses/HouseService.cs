@@ -2,7 +2,6 @@
 using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Models;
 using HouseRentingSystem.Services.Houses.Models;
-using Microsoft.Build.Evaluation;
 
 namespace HouseRentingSystem.Services.Houses
 {
@@ -73,10 +72,44 @@ namespace HouseRentingSystem.Services.Houses
             };
         }
 
+        public bool CategoryExists(int categoryId)
+            => data.Categories.Any(c => c.Id == categoryId);
+
+        public int Create(string title, string address,
+                        string description, string imageUrl,
+                        decimal price, int categoryId, int agentId)
+        {
+            House house = new House
+            {
+                Title = title,
+                Address = address,
+                Description = description,
+                ImageUrl = imageUrl,
+                PricePerMonth = price,
+                CategoryId = categoryId,
+                AgentId = agentId
+            };
+
+            data.Houses.Add(house);
+            data.SaveChanges();
+
+            return house.Id;
+        }
+
         public IEnumerable<string> AllCategoriesNames()
             => data.Categories
             .Select(c => c.Name)
             .Distinct()
+            .ToList();
+
+        public IEnumerable<HouseCategoryServiceModel> AllCategories()
+            => data
+            .Categories
+            .Select(c => new HouseCategoryServiceModel
+            {
+                Id = c.Id,
+                Name = c.Name
+            })
             .ToList();
 
         public IEnumerable<HouseServiceModel> AllHousesByAgentId (int agentId)

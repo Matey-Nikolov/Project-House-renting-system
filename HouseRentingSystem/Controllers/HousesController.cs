@@ -158,14 +158,14 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Add()
         {
-            if (!data.Agents.Any(a => a.UserId == User.Id()))
+            if (!agents.ExistsById(User.Id()))
             {
                 return RedirectToAction(nameof(AgentsController.Become), "Agents");
             }
 
             return View(new HouseFormModel
             {
-                Categories = GetHouseCategories()
+                Categories = houses.AllCategories()
             });
         }
 
@@ -173,43 +173,28 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Add(HouseFormModel model)
         {
-            if (!this.data.Agents.Any(a => a.UserId == this.User.Id()))
+            if (!agents.ExistsById(User.Id()))
             {
                 return RedirectToAction(nameof(AgentsController.Become), "Agents");
             }
 
-            if (!this.data.Categories.Any(c => c.Id == model.CategoryId))
+            if (!houses.CategoryExists(model.CategoryId))
             {
-                ModelState.AddModelError(nameof(model.CategoryId),
-                    "Category does not exist.");
+                ModelState.AddModelError(nameof(model.CategoryId), "Category does not exist.");
             }
 
             if (!ModelState.IsValid)
             {
-                model.Categories = this.GetHouseCategories();
-
+                model.Categories = houses.AllCategories();
                 return View(model);
             }
 
-            var agentId = this.data.Agents
-                .FirstOrDefault(a => a.UserId == this.User.Id())
-                .Id;
+            int agentId = agents.GetAgentId(User.Id());
 
-            var house = new House
-            {
-                Title = model.Title,
-                Address = model.Address,
-                Description = model.Description,
-                ImageUrl = model.ImageUrl,
-                PricePerMonth = model.PricePerMonth,
-                CategoryId = model.CategoryId,
-                AgentId = agentId
-            };
+            int newHouseId = houses.Create(model.Title, model.Address, model.Description,
+                model.ImageUrl, model.PricePerMonth, model.CategoryId, agentId);
 
-            this.data.Houses.Add(house);
-            this.data.SaveChanges();
-
-            return RedirectToAction(nameof(Details), new { id = house.Id });
+            return RedirectToAction(nameof(Details), new { id = newHouseId });
         }
 
         [Authorize]

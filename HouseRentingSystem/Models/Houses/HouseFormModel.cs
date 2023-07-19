@@ -1,4 +1,5 @@
 ﻿using HouseRentingSystem.Models.Category;
+using HouseRentingSystem.Services.Houses.Models;
 using System.ComponentModel.DataAnnotations;
 using static HouseRentingSystem.Data.DataConstants.House;
 
@@ -8,9 +9,6 @@ namespace HouseRentingSystem.Models.Houses
     {
         [Display(Name ="Category")]
         public int CategoryId { get; init; }
-
-        public IEnumerable<HouseCategoryViewModel> Categories { get; set; }
-        = new List<HouseCategoryViewModel>();
 
         [Required]
         [StringLength(TitleMaxLength, MinimumLength = TitleMinLength)]
@@ -32,5 +30,10 @@ namespace HouseRentingSystem.Models.Houses
         [Range(0.00, MaxPricePerMonth, ErrorMessage = "Price per month must be a positive number and less than {2} leva.")]
         [Display(Name = "Price per mounth")]
         public decimal PricePerMonth { get; init; }
+
+
+        public IEnumerable<HouseCategoryServiceModel> Categories { get; set; }
+        = new List<HouseCategoryServiceModel>();
+
     }
 }

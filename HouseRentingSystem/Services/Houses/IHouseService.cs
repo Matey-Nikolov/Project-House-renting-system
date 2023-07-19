@@ -14,7 +14,13 @@ namespace HouseRentingSystem.Services.Houses
                 int housesPerPage = 1
             );
 
+        bool CategoryExists(int categoryId);
+        int Create(string title, string address,
+            string description, string imageUrl,
+            decimal price, int categoryId, int agentId);
+
         IEnumerable<string> AllCategoriesNames();
+        IEnumerable<HouseCategoryServiceModel> AllCategories();
         IEnumerable<HouseServiceModel> AllHousesByAgentId(int agentId);
         IEnumerable<HouseServiceModel> AllHousesByUserId(string userId);
     }
