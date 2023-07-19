@@ -1,8 +1,8 @@
 ﻿using HouseRentingSystem.Data;
 using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Models;
+using HouseRentingSystem.Services.Agents.Models;
 using HouseRentingSystem.Services.Houses.Models;
-using Microsoft.Build.Evaluation;
 
 namespace HouseRentingSystem.Services.Houses
 {
@@ -72,6 +72,30 @@ namespace HouseRentingSystem.Services.Houses
                 Houses = houses
             };
         }
+
+        public bool Exists(int id)
+            => data.Houses.Any(h => h.Id == id);
+
+        public HouseDetailsServiceModel HouseDetailsById(int id)
+            => data.Houses
+            .Where(h => h.Id == id)
+            .Select(h => new HouseDetailsServiceModel()
+            {
+                Id = h.Id,
+                Title = h.Title,
+                Address = h.Address,
+                Description = h.Description,
+                ImageUrl = h.ImageUrl,
+                PricePerMonth = h.PricePerMonth,
+                IsRented = h.RenterId != null,
+                Category = h.Category.Name,
+                Agent = new AgentServiceModel()
+                {
+                    PhoneNumber = h.Agent.PhoneNumber,
+                    Email = h.Agent.User.Email
+                }
+            })
+            .FirstOrDefault();
 
         public IEnumerable<string> AllCategoriesNames()
             => data.Categories
