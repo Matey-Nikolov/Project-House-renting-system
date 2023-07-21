@@ -1,14 +1,8 @@
-﻿using HouseRentingSystem.Data;
-using HouseRentingSystem.Models.Houses;
+﻿using HouseRentingSystem.Models.Houses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 //using System.Security.Claims;
 using HouseRentingSystem.Infrastructure;
-using HouseRentingSystem.Models.Category;
-using HouseRentingSystem.Data.Entities;
-using HouseRentingSystem.Models;
-using HouseRentingSystem.Models.Agents;
 using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses.Models;
@@ -17,14 +11,12 @@ namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
-        private readonly HouseRentingDbContext data;
-        
+ 
         private readonly IHouseService houses;
         private readonly IAgentService agents;
 
-        public HousesController(HouseRentingDbContext data, IHouseService houses, IAgentService agents)
+        public HousesController(IHouseService houses, IAgentService agents)
         {
-            this.data = data;
             this.houses = houses;
             this.agents = agents;
         }
@@ -34,21 +26,13 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Leave(int id)
         {
-            if (!data.Houses.Any(h => h.Id == id && h.RenterId != null))
-            {
+            if (!houses.Exists(id) || !houses.IsRented(id))
                 return BadRequest();
-            }
 
-            var house = data.Houses.Find(id);
-
-            if (house.RenterId != User.Id())
-            {
+            if (!houses.IsRentedByUserWithId(id, User.Id()))
                 return Unauthorized();
-            }
-
-            house.RenterId = null;
-
-            data.SaveChanges();
+            
+            houses.Leave(id);
 
             return RedirectToAction(nameof(Mine));
         }
@@ -57,26 +41,16 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Rent(int id)
         {
-            if (!data.Houses.Any(h => h.Id == id))
-            {
+            if (!houses.Exists(id))
                 return BadRequest();
-            }
 
-            if (data.Agents.Any(a => a.UserId == User.Id()))
-            {
+            if (agents.ExistsById(User.Id()))
                 return Unauthorized();
-            }
 
-            var house = data.Houses.Find(id);
-
-            if (house.RenterId != null)
-            {
+            if (houses.IsRented(id))
                 return BadRequest();
-            }
 
-            house.RenterId = User.Id();
-
-            data.SaveChanges();
+            houses.Rent(id, User.Id());
 
             return RedirectToAction(nameof(Mine));
         }
@@ -84,19 +58,15 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Edit(int id)
         {
-            var house = data.Houses.Find(id);
-
-            if (house == null)
-            {
+            if (!houses.Exists(id))
                 return BadRequest();
-            }
 
-            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
-
-            if (agent == null || agent.UserId != User.Id())
-            {
+            if (!houses.HasAgentWithId(id, User.Id()))
                 return Unauthorized();
-            }
+
+            var house = houses.HouseDetailsById(id);
+
+            int houseCategoryId = houses.GetHouseCategoryId(house.Id);
 
             HouseFormModel houseModel = new HouseFormModel()
             {
@@ -105,8 +75,8 @@ namespace HouseRentingSystem.Controllers
                 Description = house.Description,
                 ImageUrl = house.ImageUrl,
                 PricePerMonth = house.PricePerMonth,
-                CategoryId = house.CategoryId,
-                Categories = GetHouseCategories()
+                CategoryId = houseCategoryId,
+                Categories = houses.AllCategories()
             };
 
             return View(houseModel);
@@ -116,21 +86,13 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Edit(int id, HouseFormModel model)
         {
-            var house = data.Houses.Find(id);
-
-            if (house == null)
-            {
+            if (!houses.Exists(id))
                 return View();
-            }
 
-            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
-
-            if (agent == null || agent.UserId != User.Id())
-            {
+            if (!houses.HasAgentWithId(id, User.Id()))
                 return Unauthorized();
-            }
 
-            if (!data.Categories.Any(c => c.Id == model.CategoryId))
+            if (!houses.CategoryExists(model.CategoryId))
             {
                 ModelState.AddModelError(nameof(model.CategoryId),
                     "Category does not exist.");
@@ -138,30 +100,22 @@ namespace HouseRentingSystem.Controllers
 
             if (!ModelState.IsValid)
             {
-                model.Categories = GetHouseCategories();
+                model.Categories = houses.AllCategories();
 
                 return View(model);
             }
 
-            house.Title = model.Title;
-            house.Address = model.Address;
-            house.Description = model.Description;
-            house.ImageUrl = model.ImageUrl;
-            house.PricePerMonth = model.PricePerMonth;
-            house.CategoryId = model.CategoryId;
+            houses.Edit(id, model.Title, model.Address, model.Description,
+                model.ImageUrl, model.PricePerMonth, model.CategoryId);
 
-            data.SaveChanges();
-
-            return RedirectToAction(nameof(Details), new { id = "1" });
+            return RedirectToAction(nameof(Details), new { id = id });
         }
 
         [Authorize]
         public IActionResult Add()
         {
             if (!agents.ExistsById(User.Id()))
-            {
                 return RedirectToAction(nameof(AgentsController.Become), "Agents");
-            }
 
             return View(new HouseFormModel
             {
@@ -174,14 +128,10 @@ namespace HouseRentingSystem.Controllers
         public IActionResult Add(HouseFormModel model)
         {
             if (!agents.ExistsById(User.Id()))
-            {
                 return RedirectToAction(nameof(AgentsController.Become), "Agents");
-            }
 
             if (!houses.CategoryExists(model.CategoryId))
-            {
                 ModelState.AddModelError(nameof(model.CategoryId), "Category does not exist.");
-            }
 
             if (!ModelState.IsValid)
             {
@@ -200,21 +150,15 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Delete(int id)
         {
-            var house = data.Houses.Find(id);
-
-            if (house == null)
-            {
+            if (!houses.Exists(id))
                 return BadRequest();
-            }
 
-            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
-
-            if (agent == null || agent.UserId != User.Id())
-            {
+            if (!houses.HasAgentWithId(id, User.Id()))
                 return Unauthorized();
-            }
 
-            HouseViewModel model = new HouseViewModel()
+            var house = houses.HouseDetailsById(id);
+
+            HouseDetailsViewModel model = new HouseDetailsViewModel()
             {
                 Title = house.Title,
                 Address = house.Address,
@@ -226,24 +170,15 @@ namespace HouseRentingSystem.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Delete(HouseViewModel model)
+        public IActionResult Delete(HouseDetailsViewModel model)
         {
-            var house = data.Houses.Find(model.Id);
-
-            if (house == null)
-            {
+            if (!houses.Exists(model.Id))
                 return BadRequest();
-            }
 
-            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
-
-            if (agent == null || agent.UserId != User.Id())
-            {
+            if (!houses.HasAgentWithId(model.Id, User.Id()))
                 return Unauthorized();
-            }
 
-            data.Houses.Remove(house);
-            data.SaveChanges();
+            houses.Delete(model.Id);
 
             return RedirectToAction(nameof(All));
         }
@@ -251,9 +186,7 @@ namespace HouseRentingSystem.Controllers
         public IActionResult Details(int id)
         {
             if (!houses.Exists(id))
-            {
                 return BadRequest();
-            }
 
             HouseDetailsServiceModel houseModel = houses.HouseDetailsById(id);
 
@@ -299,17 +232,5 @@ namespace HouseRentingSystem.Controllers
 
             return View(query);
         }
-
-        private IEnumerable<HouseCategoryViewModel> GetHouseCategories()
-        {
-            return data.Categories
-                .Select(c => new HouseCategoryViewModel
-                {
-                    Id = c.Id,
-                    Name = c.Name
-                })
-                .ToList();
-        }
-
     }
 }

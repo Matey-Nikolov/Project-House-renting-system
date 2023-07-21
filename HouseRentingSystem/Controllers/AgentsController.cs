@@ -1,6 +1,4 @@
-﻿using HouseRentingSystem.Data;
-using HouseRentingSystem.Data.Entities;
-using HouseRentingSystem.Infrastructure;
+﻿using HouseRentingSystem.Infrastructure;
 using HouseRentingSystem.Models.Agents;
 using HouseRentingSystem.Services.Agents;
 using Microsoft.AspNetCore.Authorization;
@@ -35,9 +33,7 @@ namespace HouseRentingSystem.Controllers
             string userId = User.Id();
 
             if (agents.ExistsById(userId))
-            {
                 return BadRequest();
-            }
 
             if (agents.UserWithPhoneNumberExists(model.PhoneNumber))
             {
@@ -52,9 +48,7 @@ namespace HouseRentingSystem.Controllers
             }
 
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
             agents.Create(userId, model.PhoneNumber);
 

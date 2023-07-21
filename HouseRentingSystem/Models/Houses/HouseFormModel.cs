@@ -1,5 +1,4 @@
-﻿using HouseRentingSystem.Models.Category;
-using HouseRentingSystem.Services.Houses.Models;
+﻿using HouseRentingSystem.Services.Houses.Models;
 using System.ComponentModel.DataAnnotations;
 using static HouseRentingSystem.Data.DataConstants.House;
 

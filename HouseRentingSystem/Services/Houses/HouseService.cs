@@ -79,26 +79,11 @@ namespace HouseRentingSystem.Services.Houses
         public bool CategoryExists(int categoryId)
             => data.Categories.Any(c => c.Id == categoryId);
 
-        public int Create(string title, string address,
-                        string description, string imageUrl,
-                        decimal price, int categoryId, int agentId)
-        {
-            House house = new House
-            {
-                Title = title,
-                Address = address,
-                Description = description,
-                ImageUrl = imageUrl,
-                PricePerMonth = price,
-                CategoryId = categoryId,
-                AgentId = agentId
-            };
+        public int GetHouseCategoryId(int houseId)
+            => data.Houses.Find(houseId).CategoryId;
 
-            data.Houses.Add(house);
-            data.SaveChanges();
-
-            return house.Id;
-        }
+        public bool IsRented(int id)
+         => data.Houses.Find(id).RenterId != null;
 
         public HouseDetailsServiceModel HouseDetailsById(int id)
             => data
@@ -122,6 +107,113 @@ namespace HouseRentingSystem.Services.Houses
                 })
                 .FirstOrDefault();
 
+        public bool HasAgentWithId(int houseId, string currentUserId)
+        {
+            var house = data.Houses.Find(houseId);
+            var agent = data.Agents.FirstOrDefault(a => a.Id == house.AgentId);
+
+            if (agent == null)
+            {
+                return false;
+            }
+
+            if (agent.UserId != currentUserId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public int Create(string title, string address,
+                        string description, string imageUrl,
+                        decimal price, int categoryId, int agentId)
+        {
+            House house = new House
+            {
+                Title = title,
+                Address = address,
+                Description = description,
+                ImageUrl = imageUrl,
+                PricePerMonth = price,
+                CategoryId = categoryId,
+                AgentId = agentId
+            };
+
+            data.Houses.Add(house);
+            data.SaveChanges();
+
+            return house.Id;
+        }
+
+        public void Edit(int houseId, string title, string address, string description,
+            string imageUrl, decimal price, int categoryId)
+        {
+            var house = data.Houses.Find(houseId);
+
+            house.Title = title;
+            house.Address = address;
+            house.Description = description;
+            house.ImageUrl = imageUrl;
+            house.PricePerMonth = price;
+            house.CategoryId = categoryId;
+
+            data.SaveChanges();
+        }
+
+        public void Delete(int houseId)
+        {
+            var house = data.Houses.Find(houseId);
+
+            data.Remove(house);
+            data.SaveChanges();
+        }
+
+        public bool IsRentedByUserWithId(int houseId, string userId)
+        {
+            var house = data.Houses.Find(houseId);
+
+            if (house == null)
+                return false;
+
+            if (house.RenterId != userId)
+                return false;
+
+            return true;
+        }
+
+        public void Rent(int houseId, string userId)
+        {
+            var house = data.Houses.Find(houseId);
+
+            house.RenterId = userId;
+            data.SaveChanges();
+        }
+
+        public void Leave(int houseId)
+        {
+            var house = data.Houses.Find(houseId);
+
+            house.RenterId = null;
+            data.SaveChanges();
+        }
+
+        private List<HouseServiceModel> ProjectToModel(List<House> houses)
+        {
+            List<HouseServiceModel> resultHouses = houses
+                .Select(h => new HouseServiceModel()
+                {
+                    Id = h.Id,
+                    Title = h.Title,
+                    Address = h.Address,
+                    ImageUrl = h.ImageUrl,
+                    PricePerMonth = h.PricePerMonth,
+                    IsRented = h.RenterId == null
+                })
+                .ToList();
+
+            return resultHouses;
+        }
 
         public IEnumerable<string> AllCategoriesNames()
             => data.Categories
@@ -159,22 +251,16 @@ namespace HouseRentingSystem.Services.Houses
             return ProjectToModel(houses);
         }
 
-
-        private List<HouseServiceModel> ProjectToModel(List<House> houses)
-        {
-            List<HouseServiceModel> resultHouses = houses
-                .Select(h => new HouseServiceModel()
-                {
-                    Id = h.Id,
-                    Title = h.Title,
-                    Address = h.Address,
-                    ImageUrl = h.ImageUrl,
-                    PricePerMonth = h.PricePerMonth,
-                    IsRented = h.RenterId == null
-                })
-                .ToList();
-
-            return resultHouses;
-        }
+        public IEnumerable<HouseIndexServiceModel> LastThreeHouses()
+            => data
+            .Houses
+            .OrderByDescending(c => c.Id)
+            .Select(c => new HouseIndexServiceModel
+            {
+                Id = c.Id,
+                Title = c.Title,
+                ImageUrl = c.ImageUrl
+            })
+            .Take(3);
     }
 }
