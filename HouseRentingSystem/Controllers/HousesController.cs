@@ -6,6 +6,7 @@ using HouseRentingSystem.Infrastructure;
 using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses.Models;
+using Microsoft.VisualBasic;
 
 namespace HouseRentingSystem.Controllers
 {
@@ -108,7 +109,7 @@ namespace HouseRentingSystem.Controllers
             houses.Edit(id, model.Title, model.Address, model.Description,
                 model.ImageUrl, model.PricePerMonth, model.CategoryId);
 
-            return RedirectToAction(nameof(Details), new { id = id });
+            return RedirectToAction(nameof(Details), new { id = id, information = model.GetInformation() });
         }
 
         [Authorize]
@@ -144,7 +145,7 @@ namespace HouseRentingSystem.Controllers
             int newHouseId = houses.Create(model.Title, model.Address, model.Description,
                 model.ImageUrl, model.PricePerMonth, model.CategoryId, agentId);
 
-            return RedirectToAction(nameof(Details), new { id = newHouseId });
+            return RedirectToAction(nameof(Details), new { id = newHouseId, information = model.GetInformation() });
         }
 
         [Authorize]
@@ -183,12 +184,15 @@ namespace HouseRentingSystem.Controllers
             return RedirectToAction(nameof(All));
         }
 
-        public IActionResult Details(int id)
+        public IActionResult Details(int id, string information)
         {
             if (!houses.Exists(id))
                 return BadRequest();
 
             HouseDetailsServiceModel houseModel = houses.HouseDetailsById(id);
+
+            if (information != houseModel.GetInformation())
+                return BadRequest();
 
             return View(houseModel);
         }

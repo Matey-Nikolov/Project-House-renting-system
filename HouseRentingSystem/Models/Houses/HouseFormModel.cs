@@ -4,7 +4,7 @@ using static HouseRentingSystem.Data.DataConstants.House;
 
 namespace HouseRentingSystem.Models.Houses
 {
-    public class HouseFormModel
+    public class HouseFormModel : IHouseModel
     {
         [Display(Name ="Category")]
         public int CategoryId { get; init; }
@@ -33,6 +33,5 @@ namespace HouseRentingSystem.Models.Houses
 
         public IEnumerable<HouseCategoryServiceModel> Categories { get; set; }
         = new List<HouseCategoryServiceModel>();
-
     }
 }
