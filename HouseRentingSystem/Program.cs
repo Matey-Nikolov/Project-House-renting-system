@@ -1,4 +1,5 @@
 using HouseRentingSystem.Data;
+using HouseRentingSystem.Data.Entities;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Statistics;
@@ -16,10 +17,7 @@ builder.Services.AddDbContext<HouseRentingDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-//    .AddEntityFrameworkStores<HouseRentingDbContext>();
-
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+builder.Services.AddDefaultIdentity<User>(options =>
 {
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;

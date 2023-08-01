@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using static HouseRentingSystem.Data.DataConstants.Agent;
 
 namespace HouseRentingSystem.Data.Entities
@@ -16,6 +15,6 @@ namespace HouseRentingSystem.Data.Entities
         [Required]
         public string UserId { get; set; }
 
-        public IdentityUser User { get; init; }
+        public User User { get; init; }
     }
 }

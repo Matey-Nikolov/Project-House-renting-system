@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HouseRentingSystem.Data
 {
-    public class HouseRentingDbContext : IdentityDbContext
+    public class HouseRentingDbContext : IdentityDbContext<User>
     {
-        private IdentityUser AgentUser { get; set; }
-        private IdentityUser GuestUser { get; set; }
+        private User AgentUser { get; set; }
+        private User GuestUser { get; set; }
         
         private Agent Agent { get; set; }
 
@@ -48,7 +48,7 @@ namespace HouseRentingSystem.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             SeedUsers();
-            builder.Entity<IdentityUser>()
+            builder.Entity<User>()
                 .HasData(AgentUser, GuestUser);
 
             SeedAgent();
@@ -69,12 +69,14 @@ namespace HouseRentingSystem.Data
 
         private void SeedUsers()
         {
-            var hasher = new PasswordHasher<IdentityUser>();
+            var hasher = new PasswordHasher<User>();
 
-            AgentUser = new IdentityUser()
+            AgentUser = new User()
             {
                 Id = "deal2856-c198-4129-b3f3-b893d8395082",
                 UserName = "agent@mail.com",
+                FirstName = "Linda",
+                LastName = "Michaels",
                 NormalizedUserName = "agent@mail.com",
                 Email = "agent@mail.com",
                 NormalizedEmail = "agent@mail.com"
@@ -83,10 +85,12 @@ namespace HouseRentingSystem.Data
             AgentUser.PasswordHash =
             hasher.HashPassword(AgentUser, "agent123");
 
-            GuestUser = new IdentityUser()
+            GuestUser = new User()
             {
                 Id = "6d5800ce-d726-4fc8-83d9-d6b3ac1f591e",
                 UserName = "guest@mail.com",
+                FirstName = "Teodor",
+                LastName = "Lesly",
                 NormalizedUserName = "guest@mail.com",
                 Email = "guest@mail.com",
                 NormalizedEmail = "guest@mail.com"
