@@ -1,6 +1,4 @@
-﻿using HouseRentingSystem.Models;
-using HouseRentingSystem.Services.Houses.Models;
-using System.Security.Cryptography.Xml;
+﻿using HouseRentingSystem.Services.Houses.Models;
 
 namespace HouseRentingSystem.Services.Houses
 {

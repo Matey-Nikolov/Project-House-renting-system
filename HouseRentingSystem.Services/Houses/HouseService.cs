@@ -1,6 +1,5 @@
 ﻿using HouseRentingSystem.Services.Data;
 using HouseRentingSystem.Services.Data.Entities;
-using HouseRentingSystem.Models;
 using HouseRentingSystem.Services.Agents.Models;
 using HouseRentingSystem.Services.Houses.Models;
 using HouseRentingSystem.Services.Users;

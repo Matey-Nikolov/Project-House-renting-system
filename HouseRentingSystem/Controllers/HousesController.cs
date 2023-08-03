@@ -6,7 +6,6 @@ using HouseRentingSystem.Infrastructure;
 using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses.Models;
-using Microsoft.VisualBasic;
 
 namespace HouseRentingSystem.Controllers
 {
