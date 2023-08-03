@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace HouseRentingSystem.Data.Migrations
+namespace HouseRentingSystem.Services.Data.Migrations
 {
     public partial class AddedUserColums : Migration
     {

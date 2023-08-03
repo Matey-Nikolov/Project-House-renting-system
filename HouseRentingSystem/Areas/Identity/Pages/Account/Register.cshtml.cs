@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
-using HouseRentingSystem.Data.Entities;
+using HouseRentingSystem.Services.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-using static HouseRentingSystem.Data.DataConstants.User;
+using static HouseRentingSystem.Services.Data.DataConstants.User;
 
 namespace HouseRentingSystem.Areas.Identity.Pages.Account
 {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using static HouseRentingSystem.Data.DataConstants.Agent;
+using static HouseRentingSystem.Services.Data.DataConstants.Agent;
 
-namespace HouseRentingSystem.Data.Entities
+namespace HouseRentingSystem.Services.Data.Entities
 {
     public class Agent
     {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
-using static HouseRentingSystem.Data.DataConstants.User;
+using static HouseRentingSystem.Services.Data.DataConstants.User;
 
-namespace HouseRentingSystem.Data.Entities
+namespace HouseRentingSystem.Services.Data.Entities
 {
     public class User : IdentityUser
     {

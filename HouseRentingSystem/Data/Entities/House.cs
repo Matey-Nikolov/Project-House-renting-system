@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static HouseRentingSystem.Data.DataConstants.House;
+using static HouseRentingSystem.Services.Data.DataConstants.House;
 
-namespace HouseRentingSystem.Data.Entities
+namespace HouseRentingSystem.Services.Data.Entities
 {
     public class House
     {

@@ -1,5 +1,5 @@
-﻿using HouseRentingSystem.Data;
-using HouseRentingSystem.Data.Entities;
+﻿using HouseRentingSystem.Services.Data;
+using HouseRentingSystem.Services.Data.Entities;
 
 namespace HouseRentingSystem.Services.Agents
 {

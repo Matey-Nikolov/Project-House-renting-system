@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using static HouseRentingSystem.Data.DataConstants.Category;
+using static HouseRentingSystem.Services.Data.DataConstants.Category;
 
-namespace HouseRentingSystem.Data.Entities
+namespace HouseRentingSystem.Services.Data.Entities
 {
     public class Category
     {

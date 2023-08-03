@@ -1,5 +1,5 @@
-using HouseRentingSystem.Data;
-using HouseRentingSystem.Data.Entities;
+using HouseRentingSystem.Services.Data;
+using HouseRentingSystem.Services.Data.Entities;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Statistics;
@@ -7,6 +7,7 @@ using HouseRentingSystem.Services.Statistics.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using HouseRentingSystem.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<HouseRentingDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+//https://stackoverflow.com/questions/65007086/services-adddatabasedeveloperpageexceptionfilter-error-code-cs1061
+//Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<User>(options =>
@@ -34,6 +37,7 @@ builder.Services.AddControllersWithViews(option =>
 
 builder.Services.AddTransient<IAgentService, AgentService>();
 builder.Services.AddTransient<IHouseService, HouseService>();
+builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IStatisticsService, StatisticsService>();
 
 var app = builder.Build();

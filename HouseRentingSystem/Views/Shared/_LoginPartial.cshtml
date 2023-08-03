@@ -1,9 +1,13 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using HouseRentingSystem.Data.Entities
+﻿
+@using HouseRentingSystem.Services.Users;
+
+@using Microsoft.AspNetCore.Identity
+@using HouseRentingSystem.Services.Data.Entities
 
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 @inject IAgentService agents
+@inject IUserService users
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
@@ -11,11 +15,18 @@
         @if (!this.agents.ExistsById(this.User.Id()))
         {
             <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Agents" asp-action="Become">Become Agent</a>
+                <a class="nav-link text-dark" asp-area="" asp-controller="Agents" asp-action="Become">Become Agent</a>
             </li>
         }
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>
+            @if (users.UserFullName(this.User.Id()) is var fullName && fullName != null)
+            {
+                <a class="nav-link text-dark">Hello, @fullName!</a>
+            }
+            else
+            {
+                <a class="nav-link text-dark">Hello, @this.User.Identity.Name!</a>
+            }
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

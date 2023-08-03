@@ -1,16 +1,20 @@
-﻿using HouseRentingSystem.Data.Entities;
+﻿using HouseRentingSystem.Services.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace HouseRentingSystem.Data
+using static HouseRentingSystem.Services.Data.Constants;
+
+namespace HouseRentingSystem.Services.Data
 {
     public class HouseRentingDbContext : IdentityDbContext<User>
     {
         private User AgentUser { get; set; }
         private User GuestUser { get; set; }
-        
+        private User AdminUser { get; set; }
+
         private Agent Agent { get; set; }
+        private Agent AdminAgent { get; set; }
 
         private Category CottageCategory { get; set; }
         private Category SingleCategory { get; set; }
@@ -49,11 +53,11 @@ namespace HouseRentingSystem.Data
 
             SeedUsers();
             builder.Entity<User>()
-                .HasData(AgentUser, GuestUser);
+                .HasData(AgentUser, GuestUser, AdminUser);
 
             SeedAgent();
             builder.Entity<Agent>()
-                .HasData(Agent);
+                .HasData(Agent, AdminAgent);
 
             SeedCategories();
             builder.Entity<Category>()
@@ -69,7 +73,21 @@ namespace HouseRentingSystem.Data
 
         private void SeedUsers()
         {
-            var hasher = new PasswordHasher<User>();
+            PasswordHasher<User> hasher = new PasswordHasher<User>();
+
+            AdminUser = new User()
+            {
+                Id = "bcb4f072-ecca-43c9-ab26-c060c6f364e4",
+                Email = AdminEmail,
+                NormalizedEmail = AdminEmail,
+                UserName = AdminEmail,
+                NormalizedUserName = AdminEmail,
+                FirstName = "Great",
+                LastName = "Admin"
+            };
+
+            AdminUser.PasswordHash =
+                hasher.HashPassword(AgentUser, "admin123");
 
             AgentUser = new User()
             {
@@ -102,6 +120,13 @@ namespace HouseRentingSystem.Data
 
         private void SeedAgent()
         {
+            AdminAgent = new Agent()
+            {
+                Id = 5,
+                PhoneNumber = "+359123456789",
+                UserId = AdminUser.Id
+            };
+
             Agent = new Agent()
             {
                 Id = 1,
