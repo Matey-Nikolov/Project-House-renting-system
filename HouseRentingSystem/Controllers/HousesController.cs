@@ -45,7 +45,7 @@ namespace HouseRentingSystem.Controllers
             if (!houses.Exists(id))
                 return BadRequest();
 
-            if (agents.ExistsById(User.Id()))
+            if (agents.ExistsById(User.Id()) && !User.IsAdmin())
                 return Unauthorized();
 
             if (houses.IsRented(id))
@@ -62,7 +62,7 @@ namespace HouseRentingSystem.Controllers
             if (!houses.Exists(id))
                 return BadRequest();
 
-            if (!houses.HasAgentWithId(id, User.Id()))
+            if (!houses.HasAgentWithId(id, User.Id()) && !User.IsAdmin())
                 return Unauthorized();
 
             var house = houses.HouseDetailsById(id);
@@ -90,7 +90,7 @@ namespace HouseRentingSystem.Controllers
             if (!houses.Exists(id))
                 return View();
 
-            if (!houses.HasAgentWithId(id, User.Id()))
+            if (!houses.HasAgentWithId(id, User.Id()) && User.IsAdmin())
                 return Unauthorized();
 
             if (!houses.CategoryExists(model.CategoryId))
@@ -154,7 +154,7 @@ namespace HouseRentingSystem.Controllers
             if (!houses.Exists(id))
                 return BadRequest();
 
-            if (!houses.HasAgentWithId(id, User.Id()))
+            if (!houses.HasAgentWithId(id, User.Id()) && !User.IsAdmin())
                 return Unauthorized();
 
             var house = houses.HouseDetailsById(id);
@@ -176,7 +176,7 @@ namespace HouseRentingSystem.Controllers
             if (!houses.Exists(model.Id))
                 return BadRequest();
 
-            if (!houses.HasAgentWithId(model.Id, User.Id()))
+            if (!houses.HasAgentWithId(model.Id, User.Id()) && !User.IsAdmin())
                 return Unauthorized();
 
             houses.Delete(model.Id);
