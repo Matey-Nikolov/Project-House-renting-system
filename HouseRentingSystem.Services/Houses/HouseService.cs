@@ -4,6 +4,9 @@ using HouseRentingSystem.Services.Agents.Models;
 using HouseRentingSystem.Services.Houses.Models;
 using HouseRentingSystem.Services.Users;
 using Microsoft.AspNetCore.Identity;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace HouseRentingSystem.Services.Houses
 {
@@ -11,11 +14,13 @@ namespace HouseRentingSystem.Services.Houses
     {
         private readonly HouseRentingDbContext data;
         private readonly IUserService users;
+        private readonly IMapper mapper;
 
-        public HouseService(HouseRentingDbContext data, IUserService users)
+        public HouseService(HouseRentingDbContext data, IUserService users, IMapper mapper)
         {
             this.data = data;
             this.users = users;
+            this.mapper = mapper;
         }
 
 
@@ -59,18 +64,10 @@ namespace HouseRentingSystem.Services.Houses
             var houses = housesQuery
                 .Skip((currentPage - 1) * housesPerPage)
                 .Take(housesPerPage)
-                .Select(h => new HouseServiceModel
-                {
-                    Id = h.Id,
-                    Title = h.Title,
-                    Address = h.Address,
-                    ImageUrl = h.ImageUrl,
-                    IsRented = h.RenterId != null,
-                    PricePerMonth = h.PricePerMonth
-                })
+                .ProjectTo<HouseServiceModel>(mapper.ConfigurationProvider)
                 .ToList();
 
-            var totalHouses = housesQuery.Count();
+            int totalHouses = housesQuery.Count();
 
             return new HouseQueryServiceModel()
             {
@@ -92,27 +89,23 @@ namespace HouseRentingSystem.Services.Houses
          => data.Houses.Find(id).RenterId != null;
 
         public HouseDetailsServiceModel HouseDetailsById(int id)
-            => data
-               .Houses
-               .Where(h => h.Id == id)
-                .Select(h => new HouseDetailsServiceModel()
-                {
-                    Id = h.Id,
-                    Title = h.Title,
-                    Address = h.Address,
-                    Description = h.Description,
-                    ImageUrl = h.ImageUrl,
-                    PricePerMonth = h.PricePerMonth,
-                    IsRented = h.RenterId != null,
-                    Category = h.Category.Name,
-                    Agent = new AgentServiceModel()
-                    {
-                        FullName = users.UserFullName(h.Agent.UserId),
-                        PhoneNumber = h.Agent.PhoneNumber,
-                        Email = h.Agent.User.Email
-                    }
-                })
+        {
+            House dbHouse = data
+                .Houses
+                .Include(h => h.Category)
+                .Include(h => h.Agent.User)
+                .Where(h => h.Id == id)
                 .FirstOrDefault();
+
+            HouseDetailsServiceModel house = mapper.Map<HouseDetailsServiceModel>(dbHouse);
+
+            AgentServiceModel agent = mapper.Map<AgentServiceModel>(dbHouse.Agent);
+            agent.FullName = users.UserFullName(dbHouse.Agent.UserId);
+
+            house.Agent = agent;
+
+            return house;
+        }
 
         public bool HasAgentWithId(int houseId, string currentUserId)
         {
@@ -205,23 +198,6 @@ namespace HouseRentingSystem.Services.Houses
             data.SaveChanges();
         }
 
-        private List<HouseServiceModel> ProjectToModel(List<House> houses)
-        {
-            List<HouseServiceModel> resultHouses = houses
-                .Select(h => new HouseServiceModel()
-                {
-                    Id = h.Id,
-                    Title = h.Title,
-                    Address = h.Address,
-                    ImageUrl = h.ImageUrl,
-                    PricePerMonth = h.PricePerMonth,
-                    IsRented = h.RenterId == null
-                })
-                .ToList();
-
-            return resultHouses;
-        }
-
         public IEnumerable<string> AllCategoriesNames()
             => data.Categories
             .Select(c => c.Name)
@@ -231,44 +207,35 @@ namespace HouseRentingSystem.Services.Houses
         public IEnumerable<HouseCategoryServiceModel> AllCategories()
             => data
             .Categories
-            .Select(c => new HouseCategoryServiceModel
-            {
-                Id = c.Id,
-                Name = c.Name
-            })
+            .ProjectTo<HouseCategoryServiceModel>(mapper.ConfigurationProvider)
             .ToList();
 
         public IEnumerable<HouseServiceModel> AllHousesByAgentId (int agentId)
         {
-            List<House> houses = data
+            List<HouseServiceModel> houses = data
                 .Houses
                 .Where(h => h.AgentId == agentId)
+                .ProjectTo<HouseServiceModel>(mapper.ConfigurationProvider)
                 .ToList();
 
-            return ProjectToModel(houses);
+            return houses;
         }
 
         public IEnumerable<HouseServiceModel> AllHousesByUserId(string userId)
         {
-            List<House> houses = data
+            List<HouseServiceModel> houses = data
                 .Houses
                 .Where(h => h.RenterId == userId)
+                .ProjectTo<HouseServiceModel>(mapper.ConfigurationProvider)
                 .ToList();
 
-            return ProjectToModel(houses);
+            return houses;
         }
 
         public IEnumerable<HouseIndexServiceModel> LastThreeHouses()
-            => data
-            .Houses
-            .OrderByDescending(c => c.Id)
-            .Select(c => new HouseIndexServiceModel
-            {
-                Id = c.Id,
-                Title = c.Title,
-                Address = c.Address,
-                ImageUrl = c.ImageUrl
-            })
-            .Take(3);
+            => data.Houses
+                .OrderByDescending(c => c.Id)
+                .ProjectTo<HouseIndexServiceModel>(mapper.ConfigurationProvider)
+                .Take(3);
     }
 }

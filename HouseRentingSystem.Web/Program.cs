@@ -3,12 +3,14 @@ using HouseRentingSystem.Services.Data.Entities;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Statistics;
-//using HouseRentingSystem.Services.Statistics.Models;
+using HouseRentingSystem.Services.Users;
+
+using HouseRentingSystem.Web.Infrastructure;
+using HouseRentingSystem.Web.Controllers;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using HouseRentingSystem.Services.Users;
-using HouseRentingSystem.Web.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,8 @@ builder.Services.AddDefaultIdentity<User>(options =>
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<HouseRentingDbContext>();
+
+builder.Services.AddAutoMapper(typeof(IHouseService).Assembly, typeof(HomeController).Assembly);
 
 builder.Services.AddControllersWithViews(option =>
 {

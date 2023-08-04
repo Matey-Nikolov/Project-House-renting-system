@@ -6,6 +6,7 @@ using HouseRentingSystem.Web.Infrastructure;
 using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses.Models;
+using AutoMapper;
 
 namespace HouseRentingSystem.Web.Controllers
 {
@@ -14,11 +15,13 @@ namespace HouseRentingSystem.Web.Controllers
  
         private readonly IHouseService houses;
         private readonly IAgentService agents;
+        private readonly IMapper mapper;
 
-        public HousesController(IHouseService houses, IAgentService agents)
+        public HousesController(IHouseService houses, IAgentService agents, IMapper mapper)
         {
             this.houses = houses;
             this.agents = agents;
+            this.mapper = mapper;
         }
 
 
@@ -68,16 +71,9 @@ namespace HouseRentingSystem.Web.Controllers
 
             int houseCategoryId = houses.GetHouseCategoryId(house.Id);
 
-            HouseFormModel houseModel = new HouseFormModel()
-            {
-                Title = house.Title,
-                Address = house.Address,
-                Description = house.Description,
-                ImageUrl = house.ImageUrl,
-                PricePerMonth = house.PricePerMonth,
-                CategoryId = houseCategoryId,
-                Categories = houses.AllCategories()
-            };
+            HouseFormModel houseModel = mapper.Map<HouseFormModel>(house);
+            houseModel.CategoryId = houseCategoryId;
+            houseModel.Categories = houses.AllCategories();
 
             return View(houseModel);
         }
@@ -158,12 +154,7 @@ namespace HouseRentingSystem.Web.Controllers
 
             var house = houses.HouseDetailsById(id);
 
-            HouseDetailsViewModel model = new HouseDetailsViewModel()
-            {
-                Title = house.Title,
-                Address = house.Address,
-                ImageUrl = house.ImageUrl
-            };
+            HouseDetailsViewModel model = mapper.Map<HouseDetailsViewModel>(house);
 
             return View(model);
         }

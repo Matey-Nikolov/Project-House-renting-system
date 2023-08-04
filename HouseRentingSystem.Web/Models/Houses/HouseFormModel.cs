@@ -6,8 +6,8 @@ namespace HouseRentingSystem.Web.Models.Houses
 {
     public class HouseFormModel : IHouseModel
     {
-        [Display(Name ="Category")]
-        public int CategoryId { get; init; }
+        [Display(Name = "Category")]
+        public int CategoryId { get; set; }
 
         [Required]
         [StringLength(TitleMaxLength, MinimumLength = TitleMinLength)]
