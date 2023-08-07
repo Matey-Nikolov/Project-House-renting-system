@@ -2,6 +2,7 @@
 using HouseRentingSystem.Services.Agents.Models;
 using HouseRentingSystem.Services.Data.Entities;
 using HouseRentingSystem.Services.Houses.Models;
+using HouseRentingSystem.Services.Users.Models;
 
 namespace HouseRentingSystem.Services.Infrastructure
 {
@@ -20,6 +21,14 @@ namespace HouseRentingSystem.Services.Infrastructure
 
             CreateMap<Agent, AgentServiceModel>()
                 .ForMember(ag => ag.Email, cfg => cfg.MapFrom(ag => ag.User.Email));
+
+            CreateMap<Agent, UserServiceModel>()
+                .ForMember(us => us.Email, cfg => cfg.MapFrom(ag => ag.User.Email))
+                .ForMember(us => us.FullName, cfg => cfg.MapFrom(ag => ag.User.FirstName + " " + ag.User.LastName));
+
+            CreateMap<User, UserServiceModel>()
+                .ForMember(us => us.PhoneNumber, cfg => cfg.MapFrom(us => string.Empty))
+                .ForMember(us => us.FullName, cfg => cfg.MapFrom(ag => ag.FirstName + " " + ag.LastName));
 
             CreateMap<Category, HouseCategoryServiceModel>();
         }

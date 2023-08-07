@@ -2,11 +2,11 @@
 using HouseRentingSystem.Services.Data.Entities;
 using HouseRentingSystem.Services.Agents.Models;
 using HouseRentingSystem.Services.Houses.Models;
-using HouseRentingSystem.Services.Users;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using HouseRentingSystem.Services.Users;
 
 namespace HouseRentingSystem.Services.Houses
 {
