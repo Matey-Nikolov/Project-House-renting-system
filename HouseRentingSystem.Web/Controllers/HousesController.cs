@@ -190,6 +190,11 @@ namespace HouseRentingSystem.Web.Controllers
         [Authorize]
         public IActionResult Mine()
         {
+            if (User.IsInRole("Administrator"))
+            {
+                return RedirectToAction("Mine", "Houses", new { area = "Admin" });
+            }
+
             IEnumerable<HouseServiceModel> myHouses = null;
 
             string userId = User.Id();

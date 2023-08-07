@@ -12,6 +12,11 @@ namespace HouseRentingSystem.Web.Controllers
 
         public IActionResult Index()
         {
+            if (User.IsInRole("Administrator"))
+            {
+                return RedirectToAction("Index", "Home", new { area = "Admin"});
+            }
+
             var houses = this.houses.LastThreeHouses();
             return View(houses);
         }
