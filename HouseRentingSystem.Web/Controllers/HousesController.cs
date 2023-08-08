@@ -7,23 +7,24 @@ using HouseRentingSystem.Services.Houses;
 using HouseRentingSystem.Services.Agents;
 using HouseRentingSystem.Services.Houses.Models;
 using AutoMapper;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace HouseRentingSystem.Web.Controllers
 {
     public class HousesController : Controller
     {
- 
         private readonly IHouseService houses;
         private readonly IAgentService agents;
         private readonly IMapper mapper;
+        private readonly IMemoryCache cache;
 
-        public HousesController(IHouseService houses, IAgentService agents, IMapper mapper)
+        public HousesController(IHouseService houses, IAgentService agents, IMapper mapper, IMemoryCache cache)
         {
             this.houses = houses;
             this.agents = agents;
             this.mapper = mapper;
+            this.cache = cache;
         }
-
 
         [HttpPost]
         [Authorize]
@@ -36,6 +37,8 @@ namespace HouseRentingSystem.Web.Controllers
                 return Unauthorized();
             
             houses.Leave(id);
+
+            cache.Remove("RentsCacheKey");
 
             return RedirectToAction(nameof(Mine));
         }
@@ -54,6 +57,8 @@ namespace HouseRentingSystem.Web.Controllers
                 return BadRequest();
 
             houses.Rent(id, User.Id());
+
+            cache.Remove("RentsCacheKey");
 
             return RedirectToAction(nameof(Mine));
         }

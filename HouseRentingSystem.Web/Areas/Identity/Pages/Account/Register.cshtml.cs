@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 using static HouseRentingSystem.Services.Data.DataConstants.User;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace HouseRentingSystem.Web.Areas.Identity.Pages.Account
 {
@@ -14,13 +15,13 @@ namespace HouseRentingSystem.Web.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<User> signInManager;
         private readonly UserManager<User> userManager;
+        private readonly IMemoryCache cache;
 
-        public RegisterModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager)
+        public RegisterModel(UserManager<User> userManager, SignInManager<User> signInManager, IMemoryCache cache)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.cache = cache;
         }
 
         [BindProperty]
@@ -68,7 +69,7 @@ namespace HouseRentingSystem.Web.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = new User
+                User user = new User
                 {
                     UserName = Input.Email,
                     Email = Input.Email,
@@ -76,11 +77,14 @@ namespace HouseRentingSystem.Web.Areas.Identity.Pages.Account
                     LastName = Input.LastName
                 };
 
-                var result = await this.userManager.CreateAsync(user, Input.Password);
+                var result = await userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
-                    await this.signInManager.SignInAsync(user, isPersistent: false);
+                    await signInManager.SignInAsync(user, isPersistent: false);
+
+                    //Crear the users cache for the "All Users" page
+                    cache.Remove(AdminConstants.UsersCacheKey);
                     return LocalRedirect(returnUrl);
                 }
                 foreach (var error in result.Errors)

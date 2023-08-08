@@ -37,6 +37,8 @@ builder.Services.AddDefaultIdentity<User>(options =>
 
 builder.Services.AddAutoMapper(typeof(IHouseService).Assembly, typeof(HomeController).Assembly);
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddControllersWithViews(option =>
 {
     option.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
