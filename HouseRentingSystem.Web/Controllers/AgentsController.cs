@@ -52,6 +52,8 @@ namespace HouseRentingSystem.Web.Controllers
 
             agents.Create(userId, model.PhoneNumber);
 
+            TempData["message"] = "You have successfully become an agent!";
+
             return RedirectToAction(nameof(HousesController.All), "Houses");
         }
         
