@@ -30,6 +30,11 @@ namespace HouseRentingSystem.Services.Users
             return user.FirstName + " " + user.LastName;
         }
 
+        public bool UserHasRents(string userId)
+        {
+            return data.Houses.Any(h => h.RenterId == userId);
+        }
+
         public IEnumerable<UserServiceModel> All()
         {
             List<UserServiceModel> allUsers = new List<UserServiceModel>();
