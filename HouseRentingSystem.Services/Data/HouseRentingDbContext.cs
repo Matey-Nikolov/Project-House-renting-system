@@ -24,11 +24,21 @@ namespace HouseRentingSystem.Services.Data
         private House SecondHouse { get; set; }
         private House ThirdHouse { get; set; }
 
+        private bool seedDb;
 
-        public HouseRentingDbContext(DbContextOptions<HouseRentingDbContext> options)
+        public HouseRentingDbContext(DbContextOptions<HouseRentingDbContext> options, bool seed = true)
             : base(options)
         {
-            Database.Migrate();
+            if (Database.IsRelational())
+            {
+                Database.Migrate();
+            }
+            else
+            {
+                Database.EnsureCreated();
+            }
+
+            seedDb = seed;
         }
 
         public DbSet<House> Houses { get; init; }
@@ -51,22 +61,24 @@ namespace HouseRentingSystem.Services.Data
                 .HasForeignKey(h => h.AgentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            SeedUsers();
-            builder.Entity<User>()
-                .HasData(AgentUser, GuestUser, AdminUser);
+            if (seedDb)
+            {
+                SeedUsers();
+                builder.Entity<User>()
+                    .HasData(AgentUser, GuestUser, AdminUser);
 
-            SeedAgent();
-            builder.Entity<Agent>()
-                .HasData(Agent, AdminAgent);
+                SeedAgent();
+                builder.Entity<Agent>()
+                    .HasData(Agent, AdminAgent);
 
-            SeedCategories();
-            builder.Entity<Category>()
-                .HasData(CottageCategory, SingleCategory, DuplexCategory);
+                SeedCategories();
+                builder.Entity<Category>()
+                    .HasData(CottageCategory, SingleCategory, DuplexCategory);
 
-            SeedHouses();
-            builder.Entity<House>()
-                .HasData(FirstHouse, SecondHouse, ThirdHouse);
-
+                SeedHouses();
+                builder.Entity<House>()
+                    .HasData(FirstHouse, SecondHouse, ThirdHouse);
+            }
 
             base.OnModelCreating(builder);
         }
