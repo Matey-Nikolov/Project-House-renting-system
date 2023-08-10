@@ -50,6 +50,9 @@
             RentedHouse = new House()
             {
                 Title = "First Test House",
+                Address = "Add because is required",
+                Description = "Add because is required",
+                ImageUrl = "Add because is required",
                 Renter = Renter,
                 Agent = Agent,
                 Category = new Category()
@@ -62,7 +65,10 @@
 
             House nonRentedHouse = new House()
             {
-                Title = "Second Test House"
+                Title = "Second Test House",
+                Address = "Add because is required",
+                Description = "Add because is required",
+                ImageUrl = "Add because is required",
             };
 
             data.Houses.Add(nonRentedHouse);
