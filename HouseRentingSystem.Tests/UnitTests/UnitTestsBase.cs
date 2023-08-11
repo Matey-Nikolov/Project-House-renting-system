@@ -3,6 +3,7 @@
     public class UnitTestsBase
     {
         protected HouseRentingDbContext data;
+        protected IMapper mapper;
 
         public User Renter { get; private set; }
         public Agent Agent { get; private set; }
@@ -12,6 +13,7 @@
         public void SetUpBase()
         {
             data = DatabaseMock.Instance;
+            mapper = MapperMock.Instance;
             SeedDatabase();
         }
 
