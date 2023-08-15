@@ -10,7 +10,7 @@ namespace HouseRentingSystem.Tests.UnitTests
         private IUserService userService;
         private IHouseService houseService;
 
-        [OneTimeSetUp]
+        [OneTimeSetUp] 
         public void SetUp()
         {
             userService = new UserService(data, mapper);
