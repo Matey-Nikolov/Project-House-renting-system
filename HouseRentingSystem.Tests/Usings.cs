@@ -4,3 +4,4 @@ global using Microsoft.EntityFrameworkCore;
 global using HouseRentingSystem.Tests.Mocks;
 global using HouseRentingSystem.Services.Data.Entities;
 global using AutoMapper;
+global using Moq;
