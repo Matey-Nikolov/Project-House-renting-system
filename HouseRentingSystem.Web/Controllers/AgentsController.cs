@@ -1,6 +1,9 @@
 ﻿using HouseRentingSystem.Web.Infrastructure;
 using HouseRentingSystem.Web.Models.Agents;
+
 using HouseRentingSystem.Services.Agents;
+using HouseRentingSystem.Services.Users;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +12,12 @@ namespace HouseRentingSystem.Web.Controllers
     public class AgentsController : Controller
     {
         private readonly IAgentService agents;
+        private readonly IUserService users;
 
-        public AgentsController(IAgentService agents)
+        public AgentsController(IAgentService agents, IUserService users)
         {
             this.agents = agents;
+            this.users = users;
         }
 
         [Authorize]
@@ -35,13 +40,13 @@ namespace HouseRentingSystem.Web.Controllers
             if (agents.ExistsById(userId))
                 return BadRequest();
 
-            if (agents.UserWithPhoneNumberExists(model.PhoneNumber))
+            if (agents.AgentWithPhoneNumberExists(model.PhoneNumber))
             {
                 ModelState.AddModelError(nameof(model.PhoneNumber),
                     "Phone number already exists. Enter another one.");
             }
 
-            if (agents.UserHasRents(userId))
+            if (users.UserHasRents(userId))
             {
                 ModelState.AddModelError("Error",
                     "Ypu should have no rents to become an agent!");

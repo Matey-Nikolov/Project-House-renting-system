@@ -1,20 +1,16 @@
-﻿using HouseRentingSystem.Services.Data.Entities;
+﻿using HouseRentingSystem.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-using static HouseRentingSystem.Services.Data.Constants;
-
-namespace HouseRentingSystem.Services.Data
+namespace HouseRentingSystem.Data
 {
     public class HouseRentingDbContext : IdentityDbContext<User>
     {
         private User AgentUser { get; set; }
         private User GuestUser { get; set; }
-        private User AdminUser { get; set; }
-
+        
         private Agent Agent { get; set; }
-        private Agent AdminAgent { get; set; }
 
         private Category CottageCategory { get; set; }
         private Category SingleCategory { get; set; }
@@ -24,21 +20,11 @@ namespace HouseRentingSystem.Services.Data
         private House SecondHouse { get; set; }
         private House ThirdHouse { get; set; }
 
-        private bool seedDb;
 
-        public HouseRentingDbContext(DbContextOptions<HouseRentingDbContext> options, bool seed = true)
+        public HouseRentingDbContext(DbContextOptions<HouseRentingDbContext> options)
             : base(options)
         {
-            if (Database.IsRelational())
-            {
-                Database.Migrate();
-            }
-            else
-            {
-                Database.EnsureCreated();
-            }
-
-            seedDb = seed;
+            Database.Migrate();
         }
 
         public DbSet<House> Houses { get; init; }
@@ -61,45 +47,29 @@ namespace HouseRentingSystem.Services.Data
                 .HasForeignKey(h => h.AgentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            if (seedDb)
-            {
-                SeedUsers();
-                builder.Entity<User>()
-                    .HasData(AgentUser, GuestUser, AdminUser);
+            SeedUsers();
+            builder.Entity<User>()
+                .HasData(AgentUser, GuestUser);
 
-                SeedAgent();
-                builder.Entity<Agent>()
-                    .HasData(Agent, AdminAgent);
+            SeedAgent();
+            builder.Entity<Agent>()
+                .HasData(Agent);
 
-                SeedCategories();
-                builder.Entity<Category>()
-                    .HasData(CottageCategory, SingleCategory, DuplexCategory);
+            SeedCategories();
+            builder.Entity<Category>()
+                .HasData(CottageCategory, SingleCategory, DuplexCategory);
 
-                SeedHouses();
-                builder.Entity<House>()
-                    .HasData(FirstHouse, SecondHouse, ThirdHouse);
-            }
+            SeedHouses();
+            builder.Entity<House>()
+                .HasData(FirstHouse, SecondHouse, ThirdHouse);
+
 
             base.OnModelCreating(builder);
         }
 
         private void SeedUsers()
         {
-            PasswordHasher<User> hasher = new PasswordHasher<User>();
-
-            AdminUser = new User()
-            {
-                Id = "bcb4f072-ecca-43c9-ab26-c060c6f364e4",
-                Email = AdminEmail,
-                NormalizedEmail = AdminEmail,
-                UserName = AdminEmail,
-                NormalizedUserName = AdminEmail,
-                FirstName = "Great",
-                LastName = "Admin"
-            };
-
-            AdminUser.PasswordHash =
-                hasher.HashPassword(AgentUser, "admin123");
+            var hasher = new PasswordHasher<User>();
 
             AgentUser = new User()
             {
@@ -132,13 +102,6 @@ namespace HouseRentingSystem.Services.Data
 
         private void SeedAgent()
         {
-            AdminAgent = new Agent()
-            {
-                Id = 5,
-                PhoneNumber = "+359123456789",
-                UserId = AdminUser.Id
-            };
-
             Agent = new Agent()
             {
                 Id = 1,
